@@ -1,7 +1,7 @@
 /**
  * Dashboard.jsx
  * Main layout shell — tabbed navigation for all views.
- * Tabs: Overview · Zones · Field Map · Calibration · Export · Hardware
+ * Tabs: Overview · Zones · Field Map · Calibration · Export · Hardware · About
  */
 
 import { useState } from 'react'
@@ -13,8 +13,9 @@ import { FieldMap }         from './FieldMap'
 import { CalibrationPanel } from './CalibrationPanel'
 import { ExportPanel }      from './ExportPanel'
 import { SerialConnector }  from './SerialConnector'
+import { AboutPage }        from '../pages/AboutPage'
 
-const TABS = ['Overview', 'Zones', 'Field Map', 'Calibration', 'Export', 'Hardware']
+const TABS = ['Overview', 'Zones', 'Field Map', 'Calibration', 'Export', 'Hardware', 'About']
 
 export function Dashboard({
   readings, processed, history, ecosystemScore, connectionStatus, lastUpdated,
@@ -62,14 +63,15 @@ export function Dashboard({
       {/* Main content */}
       <main className="px-6 py-6 space-y-6 max-w-6xl mx-auto">
 
-        {/* Always visible: ecosystem status */}
-        <EcosystemStatus
-          ecosystemScore={ecosystemScore}
-          connectionStatus={connectionStatus}
-          lastUpdated={lastUpdated}
-        />
+        {/* Always visible: ecosystem status (hide on About) */}
+        {activeTab !== 'About' && (
+          <EcosystemStatus
+            ecosystemScore={ecosystemScore}
+            connectionStatus={connectionStatus}
+            lastUpdated={lastUpdated}
+          />
+        )}
 
-        {/* Tab panels */}
         {activeTab === 'Overview' && (
           <div>
             <p className="label-tag mb-3">Electrode Array</p>
@@ -121,12 +123,18 @@ export function Dashboard({
             <div className="card">
               <p className="label-tag mb-2">WebSocket Mode</p>
               <p className="text-xs font-mono text-myco-spore">
-                Set <span className="text-myco-mycel">VITE_SENSOR_WS_URL</span> in <span className="text-myco-mycel">.env</span> to connect via network.
-                Current status: <span className={connectionStatus === 'mock' ? 'text-myco-amber' : 'text-myco-pulse'}>{connectionStatus}</span>
+                Set <span className="text-myco-mycel">VITE_SENSOR_WS_URL</span> in{' '}
+                <span className="text-myco-mycel">.env</span> to connect via network.
+                Current status:{' '}
+                <span className={connectionStatus === 'mock' ? 'text-myco-amber' : 'text-myco-pulse'}>
+                  {connectionStatus}
+                </span>
               </p>
             </div>
           </div>
         )}
+
+        {activeTab === 'About' && <AboutPage />}
       </main>
 
       {/* Footer */}
