@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #1a1208;
+    color: #c8d8c4;
+    font-family: 'Inter', sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #2d1f0e;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #4a7c59;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-myco-bark border border-myco-moss rounded-xl p-4;
+  }
+
+  .label-tag {
+    @apply text-xs font-mono text-myco-spore uppercase tracking-widest;
+  }
+
+  .value-display {
+    @apply font-mono text-myco-pulse;
+  }
+
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+}
