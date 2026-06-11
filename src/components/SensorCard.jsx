@@ -2,6 +2,7 @@
  * SensorCard.jsx
  * Individual electrode readout card.
  * Shows: current value, smoothed trend, spike indicator, health bar, waveform.
+ * Expanded stats: z-score, Hz, entropy, trend arrow.
  */
 
 import { SignalChart } from './SignalChart'
@@ -21,10 +22,13 @@ function HealthBar({ score }) {
 
 export function SensorCard({ reading, processed, history }) {
   const { id, label, zone, value, unit } = reading
-  const { smoothed, spike, health, stdDev } = processed
+  const { smoothed, spike, health, stdDev, zScore, dominantHz, entropy, trend, fatigued } = processed
 
   return (
-    <div className={`card transition-all duration-300 ${spike ? 'border-myco-alert' : 'border-myco-moss'}`}>
+    <div className={`card card-hover transition-all duration-300 ${spike ? 'border-myco-alert' : 'border-myco-moss'}`}>
+      {/* Spike accent bar */}
+      <div className={`h-0.5 w-full rounded-full mb-3 transition-all duration-500 ${spike ? 'bg-myco-alert' : 'bg-myco-moss'}`} />
+
       {/* Header */}
       <div className="flex items-start justify-between mb-1">
         <div>
@@ -49,12 +53,16 @@ export function SensorCard({ reading, processed, history }) {
       {/* Waveform */}
       <SignalChart historyBuffer={history} spike={spike} />
 
-      {/* Health bar + stats */}
+      {/* Stats row — expanded */}
       <div className="mt-2 space-y-1">
         <HealthBar score={health} />
-        <div className="flex justify-between text-xs font-mono text-myco-spore">
-          <span>health {Math.round(health)}%</span>
+        <div className="grid grid-cols-2 gap-x-3 text-xs font-mono text-myco-spore mt-1">
+          <span>health <span className={health >= 70 ? 'text-myco-pulse' : health >= 40 ? 'text-myco-amber' : 'text-myco-alert'}>{Math.round(health)}%</span></span>
           <span>σ {stdDev?.toFixed(1) ?? '—'}</span>
+          <span>z <span className={zScore > 2.5 ? 'text-myco-alert' : 'text-myco-spore'}>{zScore?.toFixed(1) ?? '—'}</span></span>
+          <span>Hz {dominantHz?.toFixed(2) ?? '—'}</span>
+          <span>entropy {entropy?.toFixed(2) ?? '—'}</span>
+          <span>trend {trend > 0.01 ? '↑' : trend < -0.01 ? '↓' : '→'}</span>
         </div>
       </div>
     </div>
