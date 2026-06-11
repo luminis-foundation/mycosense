@@ -6,12 +6,14 @@
  * Each electrode node is rendered at its physical (x, y) position
  * with a live health-colored pulse ring and value readout.
  * Clicking a node shows its metadata tooltip.
+ * Pi coordinator node shown as a distinct square.
  */
 
 import { useState } from 'react'
 import { MapPin, X } from 'lucide-react'
 import {
   ELECTRODE_PLACEMENTS,
+  COORDINATOR_NODE,
   ZONE_COLORS,
   ZONE_REGIONS,
   FIELD_BOUNDS,
@@ -36,7 +38,7 @@ function NodeTooltip({ node, reading, proc, onClose }) {
         <div>
           <p className="label-tag">{node.id}</p>
           <p className="font-display text-sm font-semibold text-myco-mist">{node.label}</p>
-          <p className="text-xs text-myco-spore">{node.zone}</p>
+          <p className="text-xs text-myco-spore">{node.zone || 'Coordinator'}</p>
         </div>
         <button onClick={onClose} className="text-myco-spore hover:text-myco-mist">
           <X size={14} />
@@ -54,7 +56,7 @@ function NodeTooltip({ node, reading, proc, onClose }) {
         </div>
         <div>
           <p className="text-myco-spore">depth</p>
-          <p className="text-myco-mist">{node.depth}</p>
+          <p className="text-myco-mist">{node.depth || '—'}</p>
         </div>
         <div>
           <p className="text-myco-spore">spike</p>
@@ -62,9 +64,15 @@ function NodeTooltip({ node, reading, proc, onClose }) {
             {proc?.spike ? 'yes ⚡' : 'none'}
           </p>
         </div>
+        {node.hardware && (
+          <div className="col-span-2">
+            <p className="text-myco-spore">hardware</p>
+            <p className="text-myco-mist">{node.hardware}</p>
+          </div>
+        )}
       </div>
 
-      <p className="text-xs text-myco-spore border-t border-myco-moss pt-2">{node.substrate}</p>
+      <p className="text-xs text-myco-spore border-t border-myco-moss pt-2">{node.substrate || ''}</p>
       {node.notes && <p className="text-xs text-myco-spore mt-1 italic">{node.notes}</p>}
     </div>
   )
@@ -181,6 +189,18 @@ export function FieldMap({ readings, processed }) {
                   {node.id}
                 </text>
 
+                {/* Hardware label */}
+                <text
+                  x={cx} y={cy + 40}
+                  textAnchor="middle"
+                  fontSize={7}
+                  fill="#6b8a6b"
+                  fontFamily="JetBrains Mono, monospace"
+                  opacity={0.6}
+                >
+                  {node.hardware}
+                </text>
+
                 {/* Live value */}
                 {readings[node.id] && (
                   <text
@@ -197,6 +217,51 @@ export function FieldMap({ readings, processed }) {
               </g>
             )
           })}
+
+          {/* Pi Coordinator node (square) */}
+          {(() => {
+            const cx = toSVG(COORDINATOR_NODE.x, W)
+            const cy = toSVG(COORDINATOR_NODE.y, H)
+            const isActive = activeNode?.id === COORDINATOR_NODE.id
+            const piColor = '#a8c5a0'
+            return (
+              <g
+                onClick={() => setActiveNode(isActive ? null : COORDINATOR_NODE)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Outer glow */}
+                <rect x={cx - 14} y={cy - 14} width={28} height={28} rx={4} fill={piColor} fillOpacity={0.08} />
+                {/* Border */}
+                <rect x={cx - 10} y={cy - 10} width={20} height={20} rx={3} fill={piColor} fillOpacity={0.15} stroke={piColor} strokeWidth={1} strokeOpacity={0.5} />
+                {/* Core */}
+                <rect x={cx - 5} y={cy - 5} width={10} height={10} rx={2} fill={piColor} fillOpacity={0.9} />
+                {/* Active ring */}
+                {isActive && <rect x={cx - 16} y={cy - 16} width={32} height={32} rx={5} fill="none" stroke={piColor} strokeWidth={1.5} strokeOpacity={0.8} />}
+
+                {/* Label */}
+                <text
+                  x={cx} y={cy + 24}
+                  textAnchor="middle"
+                  fontSize={9}
+                  fill={piColor}
+                  fontFamily="JetBrains Mono, monospace"
+                  opacity={0.8}
+                >
+                  {COORDINATOR_NODE.id}
+                </text>
+                <text
+                  x={cx} y={cy + 34}
+                  textAnchor="middle"
+                  fontSize={7}
+                  fill="#6b8a6b"
+                  fontFamily="JetBrains Mono, monospace"
+                  opacity={0.6}
+                >
+                  {COORDINATOR_NODE.hardware}
+                </text>
+              </g>
+            )
+          })()}
 
           {/* Scale bar */}
           <g>
@@ -231,6 +296,10 @@ export function FieldMap({ readings, processed }) {
             <span className="text-xs font-mono text-myco-spore">{zone}</span>
           </div>
         ))}
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#a8c5a0', opacity: 0.8 }} />
+          <span className="text-xs font-mono text-myco-spore">Pi Coordinator</span>
+        </div>
       </div>
     </div>
   )
