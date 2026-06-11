@@ -2,15 +2,16 @@
  * useDataLogger.js
  * Accumulates sensor readings across a session for export.
  * Keeps a rolling flat log (capped at maxRecords to avoid memory bloat).
- * Exposes exportCSV and exportSQLite actions.
+ * Exposes exportCSV, exportSQLite, and generateProvenanceHash actions.
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { downloadCSV, downloadSQLite } from '../utils/dataExport'
+import { hashDataset, copyHashToClipboard } from '../utils/provenanceHash'
 
 const MAX_RECORDS = 50_000  // ~14hrs at 1 reading/sensor/500ms × 6 sensors
 
-export function useDataLogger(readings) {
+export function useDataLogger(readings, enqueue = null) {
   const logRef      = useRef([])
   const sessionStart = useRef(Date.now())
   const [recordCount, setRecordCount] = useState(0)
@@ -24,7 +25,10 @@ export function useDataLogger(readings) {
 
     logRef.current = [...logRef.current, ...snapshot].slice(-MAX_RECORDS)
     setRecordCount(logRef.current.length)
-  }, [readings, isLogging])
+
+    // Forward to Pi sync if available
+    enqueue?.(snapshot)
+  }, [readings, isLogging, enqueue])
 
   const exportCSV = useCallback(() => {
     downloadCSV(logRef.current)
@@ -39,6 +43,15 @@ export function useDataLogger(readings) {
     })
   }, [])
 
+  const generateProvenanceHash = useCallback(async () => {
+    const result = await hashDataset(logRef.current, {
+      sessionStart: new Date(sessionStart.current).toISOString(),
+      sensorCount: 6,
+    })
+    await copyHashToClipboard(result)
+    return result
+  }, [])
+
   const clearLog = useCallback(() => {
     logRef.current = []
     sessionStart.current = Date.now()
@@ -49,5 +62,5 @@ export function useDataLogger(readings) {
     setIsLogging(prev => !prev)
   }, [])
 
-  return { recordCount, isLogging, exportCSV, exportSQLite, clearLog, toggleLogging }
+  return { recordCount, isLogging, exportCSV, exportSQLite, generateProvenanceHash, clearLog, toggleLogging }
 }

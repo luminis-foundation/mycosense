@@ -12,6 +12,7 @@ import { ZoneView }         from './ZoneView'
 import { FieldMap }         from './FieldMap'
 import { CalibrationPanel } from './CalibrationPanel'
 import { ExportPanel }      from './ExportPanel'
+import { PiSyncPanel }      from './PiSyncPanel'
 import { SerialConnector }  from './SerialConnector'
 import { AboutPage }        from '../pages/AboutPage'
 
@@ -20,6 +21,7 @@ const TABS = ['Overview', 'Zones', 'Field Map', 'Calibration', 'Export', 'Hardwa
 export function Dashboard({
   readings, processed, history, ecosystemScore, connectionStatus, lastUpdated,
   dataLogger, calibration, serialStatus, portLabel, serialSupported, connectSerial, disconnectSerial,
+  piStatus,
 }) {
   const [activeTab, setActiveTab] = useState('Overview')
 
@@ -30,7 +32,7 @@ export function Dashboard({
       {/* Header */}
       <header className="border-b border-myco-bark px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-xl font-bold text-myco-mycel tracking-wide">
+          <h1 className="font-display text-xl font-bold text-myco-mycel tracking-wide text-shadow-glow">
             MycoSense
           </h1>
           <p className="text-xs font-mono text-myco-spore">
@@ -40,6 +42,11 @@ export function Dashboard({
         <div className="text-right">
           <p className="label-tag">Pecos River Valley</p>
           <p className="text-xs font-mono text-myco-spore">Rowe, NM</p>
+          {dataLogger?.recordCount > 0 && (
+            <p className="text-xs font-mono text-myco-spore mt-0.5">
+              <span className="text-myco-pulse">{dataLogger.recordCount.toLocaleString()}</span> logged
+            </p>
+          )}
         </div>
       </header>
 
@@ -102,14 +109,21 @@ export function Dashboard({
         )}
 
         {activeTab === 'Export' && (
-          <ExportPanel
-            recordCount={dataLogger.recordCount}
-            isLogging={dataLogger.isLogging}
-            exportCSV={dataLogger.exportCSV}
-            exportSQLite={dataLogger.exportSQLite}
-            clearLog={dataLogger.clearLog}
-            toggleLogging={dataLogger.toggleLogging}
-          />
+          <div className="space-y-4">
+            <ExportPanel
+              recordCount={dataLogger.recordCount}
+              isLogging={dataLogger.isLogging}
+              exportCSV={dataLogger.exportCSV}
+              exportSQLite={dataLogger.exportSQLite}
+              clearLog={dataLogger.clearLog}
+              toggleLogging={dataLogger.toggleLogging}
+            />
+            <PiSyncPanel
+              piStatus={piStatus}
+              generateProvenanceHash={dataLogger.generateProvenanceHash}
+              recordCount={dataLogger.recordCount}
+            />
+          </div>
         )}
 
         {activeTab === 'Hardware' && (
