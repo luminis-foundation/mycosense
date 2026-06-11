@@ -32,7 +32,7 @@ export function EcosystemStatus({ ecosystemScore, connectionStatus, lastUpdated 
     : '—'
 
   return (
-    <div className="card flex flex-col gap-4">
+    <div className="card border-glow card-hover flex flex-col gap-4">
       {/* Title + connection status */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export function EcosystemStatus({ ecosystemScore, connectionStatus, lastUpdated 
 
       {/* Score */}
       <div className="flex items-end gap-3">
-        <span className={`font-display text-7xl font-bold leading-none ${colors.text}`}>
+        <span className={`font-display text-7xl font-bold leading-none ${colors.text} ${score >= 70 ? 'text-shadow-glow' : ''}`}>
           {score}
         </span>
         <div className="pb-2">

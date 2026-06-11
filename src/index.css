@@ -38,3 +38,19 @@
     @apply inline-block w-2 h-2 rounded-full;
   }
 }
+
+@layer utilities {
+  .text-shadow-glow {
+    text-shadow: 0 0 20px rgba(127, 255, 122, 0.3);
+  }
+  .border-glow {
+    box-shadow: 0 0 0 1px rgba(127, 255, 122, 0.15), 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+  .card-hover {
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card-hover:hover {
+    border-color: rgba(74, 124, 89, 0.8);
+    box-shadow: 0 0 0 1px rgba(74, 124, 89, 0.2);
+  }
+}
