@@ -33,7 +33,11 @@ export function useSensorStream() {
     const newHistory  = { ...historyRef.current }
 
     snapshot.forEach(reading => {
-      newReadings[reading.id] = reading
+      if (reading.weather) {
+        newReadings[reading.id] = { ...reading, weather: reading.weather }
+      } else {
+        newReadings[reading.id] = reading
+      }
       if (!newHistory[reading.id]) newHistory[reading.id] = []
       newHistory[reading.id] = [
         ...newHistory[reading.id].slice(-(HISTORY_LENGTH - 1)),

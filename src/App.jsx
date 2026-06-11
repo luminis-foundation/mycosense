@@ -12,6 +12,7 @@ import { useDataLogger }      from './hooks/useDataLogger'
 import { useCalibration }     from './hooks/useCalibration'
 import { useSerialStream }    from './hooks/useSerialStream'
 import { usePiSync }          from './hooks/usePiSync'
+import { useWeatherStream }   from './hooks/useWeatherStream'
 import { Dashboard }          from './components/Dashboard'
 import { LoadingScreen }      from './components/LoadingScreen'
 
@@ -29,6 +30,13 @@ export default function App() {
 
   const processed      = useSignalProcessor(readings, history)
   const ecosystemScore = useEcosystemScore(processed)
+  const { weatherByZone, weatherHistory, getConditionLabel } = useWeatherStream(readings)
+
+  const zoneHealthScores = {
+    'Rhizosphere A': Math.round((processed['E01']?.health + processed['E02']?.health) / 2) || 0,
+    'Substrate B':   Math.round((processed['E03']?.health + processed['E04']?.health) / 2) || 0,
+    'Canopy C':      Math.round((processed['E05']?.health + processed['E06']?.health) / 2) || 0,
+  }
   const { piStatus, enqueue } = usePiSync()
   const dataLogger     = useDataLogger(readings, enqueue)
   const calibration    = useCalibration()
@@ -60,6 +68,10 @@ export default function App() {
       disconnectSerial={disconnectSerial}
       // Pi sync
       piStatus={piStatus}
+      // Weather
+      weatherByZone={weatherByZone}
+      zoneHealthScores={zoneHealthScores}
+      getConditionLabel={getConditionLabel}
     />
   )
 }

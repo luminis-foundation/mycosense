@@ -14,14 +14,15 @@ import { CalibrationPanel } from './CalibrationPanel'
 import { ExportPanel }      from './ExportPanel'
 import { PiSyncPanel }      from './PiSyncPanel'
 import { SerialConnector }  from './SerialConnector'
+import { WeatherPanel }     from './WeatherPanel'
 import { AboutPage }        from '../pages/AboutPage'
 
-const TABS = ['Overview', 'Zones', 'Field Map', 'Calibration', 'Export', 'Hardware', 'About']
+const TABS = ['Overview', 'Zones', 'Weather', 'Field Map', 'Calibration', 'Export', 'Hardware', 'About']
 
 export function Dashboard({
   readings, processed, history, ecosystemScore, connectionStatus, lastUpdated,
   dataLogger, calibration, serialStatus, portLabel, serialSupported, connectSerial, disconnectSerial,
-  piStatus,
+  piStatus, weatherByZone, zoneHealthScores, getConditionLabel,
 }) {
   const [activeTab, setActiveTab] = useState('Overview')
 
@@ -91,6 +92,14 @@ export function Dashboard({
             <p className="label-tag mb-3">Zone Aggregation</p>
             <ZoneView readings={readings} processed={processed} history={history} />
           </div>
+        )}
+
+        {activeTab === 'Weather' && (
+          <WeatherPanel
+            weatherByZone={weatherByZone}
+            zoneHealthScores={zoneHealthScores}
+            getConditionLabel={getConditionLabel}
+          />
         )}
 
         {activeTab === 'Field Map' && (

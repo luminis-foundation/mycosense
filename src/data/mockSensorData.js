@@ -45,6 +45,14 @@ export function getMockSnapshot() {
     value:     generateReading(sensor),
     timestamp,
     unit:      'mV',
+    weather: {
+      tempC:       22 + Math.sin(tick * 0.01) * 8 + (Math.random() - 0.5) * 2,
+      humidity:    45 + Math.sin(tick * 0.008) * 15 + (Math.random() - 0.5) * 3,
+      pressureHpa: 843 + Math.sin(tick * 0.005) * 3,
+      lightLux:    Math.max(0, 30000 + Math.sin(tick * 0.02) * 25000 + (Math.random() - 0.5) * 5000),
+      windKph:     Math.max(0, 8 + Math.sin(tick * 0.015) * 6 + (Math.random() - 0.5) * 2),
+      rainMm:      Math.random() < 0.02 ? Math.random() * 0.3 : 0,
+    },
   }))
 }
 
