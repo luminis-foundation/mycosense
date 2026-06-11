@@ -13,6 +13,7 @@ import { useCalibration }     from './hooks/useCalibration'
 import { useSerialStream }    from './hooks/useSerialStream'
 import { usePiSync }          from './hooks/usePiSync'
 import { useWeatherStream }   from './hooks/useWeatherStream'
+import { useNotifications }   from './hooks/useNotifications'
 import { Dashboard }          from './components/Dashboard'
 import { LoadingScreen }      from './components/LoadingScreen'
 
@@ -39,6 +40,26 @@ export default function App() {
   }
   const { piStatus, enqueue } = usePiSync()
   const dataLogger     = useDataLogger(readings, enqueue)
+
+  const {
+    notifications,
+    unreadCount,
+    isOpen: notificationsOpen,
+    push: pushNotification,
+    markAllRead,
+    dismiss: dismissNotification,
+    clearAll: clearAllNotifications,
+    openDrawer: openNotifications,
+    closeDrawer: closeNotifications,
+    ingestAlerts,
+  } = useNotifications()
+
+  // Ingest signal alerts into notification system
+  useEffect(() => {
+    if (Object.keys(processed).length > 0) {
+      ingestAlerts(processed)
+    }
+  }, [processed, ingestAlerts])
   const calibration    = useCalibration()
 
   // Feed live readings into calibration capture buffers
@@ -72,6 +93,15 @@ export default function App() {
       weatherByZone={weatherByZone}
       zoneHealthScores={zoneHealthScores}
       getConditionLabel={getConditionLabel}
+      // Notifications
+      unreadCount={unreadCount}
+      openNotifications={openNotifications}
+      closeNotifications={closeNotifications}
+      notificationsOpen={notificationsOpen}
+      notifications={notifications}
+      dismissNotification={dismissNotification}
+      markAllRead={markAllRead}
+      clearAllNotifications={clearAllNotifications}
     />
   )
 }

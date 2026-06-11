@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { EcosystemStatus }  from './EcosystemStatus'
 import { SensorGrid }       from './SensorGrid'
-import { AlertBanner }      from './AlertBanner'
+import { NotificationBell, NotificationDrawer } from './NotificationDrawer'
 import { ZoneView }         from './ZoneView'
 import { FieldMap }         from './FieldMap'
 import { CalibrationPanel } from './CalibrationPanel'
@@ -23,13 +23,13 @@ export function Dashboard({
   readings, processed, history, ecosystemScore, connectionStatus, lastUpdated,
   dataLogger, calibration, serialStatus, portLabel, serialSupported, connectSerial, disconnectSerial,
   piStatus, weatherByZone, zoneHealthScores, getConditionLabel,
+  unreadCount, openNotifications, closeNotifications, notificationsOpen,
+  notifications, dismissNotification, markAllRead, clearAllNotifications,
 }) {
   const [activeTab, setActiveTab] = useState('Overview')
 
   return (
     <div className="min-h-screen bg-myco-soil text-myco-mist">
-      <AlertBanner alerts={ecosystemScore.allAlerts} />
-
       {/* Header */}
       <header className="border-b border-myco-bark px-6 py-4 flex items-center justify-between">
         <div>
@@ -40,6 +40,13 @@ export function Dashboard({
             Luminis Foundation · Electrode Array Monitor
           </p>
         </div>
+
+        {/* Notification bell — center of header */}
+        <NotificationBell
+          unreadCount={unreadCount}
+          onOpen={openNotifications}
+        />
+
         <div className="text-right">
           <p className="label-tag">Pecos River Valley</p>
           <p className="text-xs font-mono text-myco-spore">Rowe, NM</p>
@@ -166,6 +173,15 @@ export function Dashboard({
           MycoSense · DOI 10.5281/zenodo.20143391 · Luminis Foundation 2026
         </p>
       </footer>
+
+      <NotificationDrawer
+        isOpen={notificationsOpen}
+        notifications={notifications}
+        onClose={closeNotifications}
+        onDismiss={dismissNotification}
+        onMarkAllRead={markAllRead}
+        onClearAll={clearAllNotifications}
+      />
     </div>
   )
 }
