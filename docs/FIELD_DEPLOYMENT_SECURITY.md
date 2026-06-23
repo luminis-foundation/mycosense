@@ -2,7 +2,7 @@
 
 This guide covers what to do before deploying ESP32 nodes and a Pi coordinator into an outdoor research site. Follow this checklist in order. Do not skip steps.
 
-> **Status:** Bench-validated. Controlled on-site prototype deployment at the Luminis Foundation office site in Rowe, New Mexico is planned. Full field deployment has not yet occurred.
+> **Status:** Bench testing underway. Controlled on-site prototype deployment at the Luminis Foundation office site in Rowe, New Mexico is planned. Full field deployment has not yet occurred.
 
 ---
 
