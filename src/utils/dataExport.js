@@ -57,7 +57,8 @@ export function downloadCSV(readings, filename = null) {
 
 /**
  * Build and download a SQLite database file from session data.
- * Requires sql.js loaded via CDN (add to index.html or import dynamically).
+ * sql.js is bundled via npm; the WASM binary is resolved by Vite and served
+ * as a static asset — no CDN or runtime script injection required.
  *
  * @param {Array}  readings   - flat array of all session readings
  * @param {Object} sessionMeta - { sessionId, startedAt, endedAt, notes }
