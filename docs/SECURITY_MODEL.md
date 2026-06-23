@@ -72,11 +72,11 @@
 | CDN-served malicious JavaScript | sql.js bundled from npm; CSP blocks external scripts |
 | Browser session reading Pi data cross-origin | CORS + bearer token required |
 
-### Threats not in scope for current phase
+### Threats not in scope for current phase (bench / controlled on-site prototype)
 | Threat | Reason / Plan |
 |---|---|
-| MQTT message injection by LAN device | Requires HMAC signing — planned Phase 2 |
-| MQTT replay attacks | Requires monotonic sequence numbers — planned Phase 2 |
+| MQTT message injection by LAN device | Requires HMAC signing — planned for post-prototype hardening |
+| MQTT replay attacks | Requires monotonic sequence numbers — planned for post-prototype hardening |
 | Pi server TLS | Suitable for LAN only; TLS adds complexity without a CA |
 | Physical tampering with field nodes | Physical security is site-operator responsibility |
 | Firmware extraction via JTAG | Secure boot not yet configured |
