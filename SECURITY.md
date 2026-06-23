@@ -1,135 +1,59 @@
-# Security Policy
+# Security Policy — MycoSense
 
-MycoSense is a Luminis Foundation research project for local-first ecological sensing, simulated dashboard operation, and future field hardware deployments.
+## Scope
 
-This policy defines how security issues should be handled for the `luminis-foundation/mycosense` repository.
+MycoSense is local-first research infrastructure. The attack surface is small:
 
-## Supported Scope
+| Component | Network exposure |
+|---|---|
+| Vercel dashboard (public demo) | Internet — mock data only, no real sensors |
+| Pi server (`mycosense.local:8765`) | LAN only — not internet-routable by design |
+| ESP32 field nodes | LAN hotspot only — no direct internet access |
 
-Security review applies to:
+**The Pi server must never be exposed to the public internet.** It has no TLS and is designed to trust the local network perimeter, reinforced by the controls below.
 
-- React dashboard code in `src/`
-- Raspberry Pi gateway code in `pi-server/`
-- ESP32 firmware in `esp32-firmware/`
-- configuration examples such as `.env.example`
-- documentation for deployment, field nodes, and data handling
+## Reporting a Vulnerability
 
-The current public demo is expected to run in mock or simulated data mode unless explicitly configured otherwise.
+Open a GitHub issue tagged `security`. For sensitive disclosures, email the Luminis Foundation directly (address on our GitHub profile). We aim to respond within 5 business days.
 
-## Current Deployment Position
+Please include:
+- Which component is affected (dashboard / Pi server / ESP32 firmware)
+- A description of the issue and its potential impact
+- Steps to reproduce (local testing only — do not test against live infrastructure)
 
-MycoSense should be treated as a research prototype and field-readiness scaffold until live hardware has been purchased, flashed, tested, installed, and validated.
+## Current Security Controls
 
-Do not describe MycoSense as field-deployed or field-verified until real hardware has collected validated live data in the intended environment.
+### Pi server
+- All endpoints require a bearer token (`MYCOSENSE_API_TOKEN` env var)
+- CORS restricted to explicit origin list (`MYCOSENSE_ALLOWED_ORIGINS` env var)
+- Batch size capped at 200 readings per POST
+- Query row limit capped at 5 000 rows
+- Binds to the Pi's LAN interface IP, not 0.0.0.0
 
-## Reporting Vulnerabilities
+### ESP32 firmware
+- WiFi and MQTT credentials stored in ESP32 NVS (non-volatile storage)
+- No credentials in source code
+- MQTT authentication via username/password
+- NTP sync required before data timestamps are trusted (`ts == -1` means not yet synced)
 
-If you find a vulnerability, report it privately to the Luminis Foundation maintainer rather than opening a public issue with exploit details.
+### Dashboard frontend
+- No `dangerouslySetInnerHTML` anywhere
+- All sensor values rendered through React text nodes (XSS-safe by default)
+- CSV export uses RFC 4180 quoting — prevents spreadsheet formula injection
+- sql.js bundled from npm (no CDN dependency)
+- Content-Security-Policy configured in `vercel.json`
 
-Recommended report contents:
+## Known Limitations (Pre-Field)
 
-- affected file or component
-- short description of the issue
-- impact assessment
-- safe reproduction notes, if applicable
-- recommended fix
-- whether any secrets, credentials, or private data may have been exposed
+- MQTT messages are not signed — a device on the LAN hotspot can inject fake readings
+- No replay protection on MQTT
+- Pi server has no TLS — suitable for trusted LAN only
+- No automatic data retention or log rotation on the Pi
 
-Do not include working exploit code, credential material, private keys, or destructive instructions in a public issue.
+These are tracked and planned for Phase 2 field hardening. See `docs/FIELD_DEPLOYMENT_SECURITY.md`.
 
-## Security Principles
+## Out of Scope
 
-MycoSense follows these principles:
-
-1. Local-first by default.
-2. No public internet exposure for field gateways unless a dedicated security review approves it.
-3. No real credentials in Git.
-4. Per-device identity for field nodes.
-5. Least privilege for services, tokens, and network access.
-6. Clear separation between simulated demo mode and live field mode.
-7. Evidence preservation for research data and incident response.
-8. Defensive testing only, limited to systems owned or explicitly authorized by Luminis Foundation.
-
-## Secrets Policy
-
-Never commit:
-
-- WiFi passwords
-- MQTT passwords
-- API keys
-- private keys
-- SSH keys
-- Vercel tokens
-- GitHub tokens
-- production `.env` files
-- field node secrets
-
-Use `.env.example` for placeholders only. Real secrets should be stored outside the repository and injected at deployment time.
-
-## Field Node Security Expectations
-
-Before live field deployment, each node should have:
-
-- unique node identifier
-- unique pre-shared secret or equivalent device credential
-- documented firmware version
-- documented flash date
-- physical label matching the deployment record
-- tamper inspection procedure
-- local data retention and recovery plan
-
-## Raspberry Pi Gateway Security Expectations
-
-Before live field deployment, the Pi gateway should:
-
-- run only on the local research network
-- use a non-default admin password
-- disable unnecessary services
-- restrict inbound network access
-- require authentication for write endpoints
-- avoid permissive CORS in production
-- log ingestion events and service errors
-- back up local data before field reset or redeploy
-
-## Public Demo Security Expectations
-
-The public demo should:
-
-- use mock or simulated data unless live publication is approved
-- avoid exposing private network addresses or secrets
-- avoid accepting arbitrary untrusted sensor submissions from the public internet
-- clearly label simulated data where appropriate
-
-## Defensive Testing Rules
-
-Allowed:
-
-- code review
-- dependency review
-- configuration review
-- local test environment validation
-- owned-device network exposure review
-- authentication and authorization verification
-- log review
-- data integrity checks
-
-Not allowed in this project workflow:
-
-- targeting third-party systems
-- credential harvesting
-- persistence testing against systems not owned by Luminis Foundation
-- destructive testing on field devices
-- public release of exploit steps before remediation
-
-## Minimum Review Before Field Deployment
-
-Before the first physical deployment, complete:
-
-- `docs/SECURITY_MODEL.md`
-- `docs/FIELD_DEPLOYMENT_SECURITY.md`
-- `docs/RED_BLUE_TEAM_PLAN.md`
-- node inventory
-- Pi gateway checklist
-- backup and incident response procedure
-- field data classification decision
-
+- Attacks requiring physical access to field hardware
+- Attacks against the Vercel CDN or public internet infrastructure
+- DoS against the public demo (it has no real sensors)

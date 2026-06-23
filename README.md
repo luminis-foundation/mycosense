@@ -103,6 +103,21 @@ npm run dev
 To connect live hardware, configure `VITE_SENSOR_WS_URL` in `.env`.
 Without hardware, the dashboard runs in mock mode automatically.
 
+Copy `.env.example` to `.env` and fill in values. The file is gitignored — never commit a populated `.env`.
+
+---
+
+## Hardware Setup
+
+For Pi server and ESP32 node configuration, including credential provisioning, see:
+
+- [`pi-server/README.md`](pi-server/README.md) — Pi server setup and authentication
+- [`esp32-firmware/README.md`](esp32-firmware/README.md) — Firmware flashing and NVS provisioning
+- [`docs/FIELD_DEPLOYMENT_SECURITY.md`](docs/FIELD_DEPLOYMENT_SECURITY.md) — Pre-deployment security checklist
+- [`FIELD_STATUS.md`](FIELD_STATUS.md) — Current deployment status
+
+> **Security:** The Pi server requires a bearer token on all endpoints. WiFi and MQTT credentials are stored in ESP32 NVS — never in source code. See [`SECURITY.md`](SECURITY.md).
+
 ---
 
 ## Security and Field Status
