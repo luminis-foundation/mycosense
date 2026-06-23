@@ -7,14 +7,14 @@
 | Step | Milestone | Status |
 |---|---|---|
 | 1 | Simulated public dashboard | ✅ Complete — `mycosense.vercel.app` (mock data) |
-| 2 | Bench-tested hardware prototype | ✅ Complete — ESP32 + Pi validated on bench |
+| 2 | Bench-tested hardware prototype | 🔄 In progress — bench testing underway |
 | 3 | Controlled on-site prototype deployment at Foundation office site | 📋 Planned |
 | 4 | Validated local field dataset | ⬜ Future |
 | 5 | Broader Pecos watershed deployment / public dataset release | ⬜ Future |
 
-## Current Status: Bench-Tested — On-Site Prototype Planned
+## Current Status: Bench Testing Underway — On-Site Prototype Planned
 
-MycoSense hardware has been assembled and tested on the bench. The full end-to-end stack (ESP32 → Pi → Dashboard) is bench-validated but has not yet been deployed outdoors.
+MycoSense hardware has been assembled and individual components have been tested on the bench. Full end-to-end validation (ESP32 → Pi → Dashboard) is underway but has not yet been completed or deployed outdoors.
 
 Prototype sensor nodes are planned for controlled on-site deployment at the Luminis Foundation office site in Rowe, New Mexico. This first deployment is intended for bench-to-field validation, calibration, local network testing, and data quality review before any broader public dataset release.
 
@@ -27,7 +27,7 @@ Prototype sensor nodes are planned for controlled on-site deployment at the Lumi
 | Pi server (FastAPI + SQLite) | Working on bench |
 | ESP32 firmware (Serial output) | Working on bench |
 | ESP32 firmware (MQTT over WiFi) | Working on bench |
-| Full end-to-end (ESP32 → Pi → Dashboard) | Bench-validated, not field-deployed |
+| Full end-to-end (ESP32 → Pi → Dashboard) | In progress — not yet fully validated |
 | Controlled on-site prototype deployment | Planned — Foundation office site, Rowe, NM |
 | Solar power + continuous outdoor operation | Not yet validated |
 | GPS surveying of node positions | Not yet completed — coordinates set to null |
