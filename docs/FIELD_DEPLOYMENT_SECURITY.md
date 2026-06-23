@@ -1,145 +1,163 @@
-# Field Deployment Security Checklist
+# Field Deployment Security Guide
 
-This checklist applies before any MycoSense hardware is deployed outside a controlled bench-test environment.
+This guide covers what to do before deploying ESP32 nodes and a Pi coordinator into an outdoor research site. Follow this checklist in order. Do not skip steps.
 
-## Deployment Rule
+> **Status:** Lab-validated. First full field deployment has not yet occurred.
 
-Do not mark MycoSense as field-deployed until all of the following are true:
+---
 
-- hardware has been purchased
-- firmware has been flashed
-- bench testing has passed
-- Pi gateway has been configured
-- field enclosure and power have been tested
-- deployment location has been recorded
-- first live data collection has been validated
+## Before You Leave the Lab
 
-## Pre-Deployment Inventory
+### 1. Generate the Pi API token
 
-For each node, record:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
 
-- node ID
-- hardware board type
-- firmware version
-- flash date
-- physical label
-- sensor package
-- electrode type
-- deployment zone
-- expected power source
-- assigned secret or credential status
-- maintainer
+Copy the output. You will need it in steps 2 and 3.
 
-## Secrets and Credentials
+### 2. Configure the Pi server
 
-Before deployment:
+Create `/etc/mycosense.env`:
 
-- remove real WiFi passwords from source files
-- remove real MQTT passwords from source files
-- remove API keys from source files
-- store node secrets outside Git
-- use one secret per field node where practical
-- rotate any secret that was committed during testing
+```bash
+MYCOSENSE_API_TOKEN=<paste token here>
+MYCOSENSE_ALLOWED_ORIGINS=http://192.168.4.100:3000
+```
 
-Development placeholders are acceptable only when clearly marked as examples.
+Add to your systemd unit (`/etc/systemd/system/mycosense-pi.service`):
 
-## Raspberry Pi Gateway Hardening
+```ini
+[Service]
+EnvironmentFile=/etc/mycosense.env
+ExecStart=/usr/bin/uvicorn main:app --host 192.168.4.1 --port 8765
+WorkingDirectory=/home/pi/mycosense/pi-server
+User=pi
+```
 
-Before deployment:
+> **`--host 192.168.4.1`** — bind only to the hotspot interface, not to any internet-facing adapter.
 
-- change default user passwords
-- disable password SSH if key-based SSH is available
-- disable unnecessary services
-- enable firewall rules
-- allow inbound traffic only from expected local devices
-- avoid public port forwarding
-- avoid exposing the Pi server directly to the public internet
-- back up the SQLite database before resetting the device
-- verify time synchronization if timestamps matter
+Reload and start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable mycosense-pi
+sudo systemctl start mycosense-pi
+```
 
-## Pi Server API Expectations
+### 3. Configure Mosquitto MQTT broker
 
-The Pi server should:
+Install and configure on the Pi:
+```bash
+sudo apt install mosquitto mosquitto-clients
+sudo mosquitto_passwd -c /etc/mosquitto/passwd myconode
+# Enter a password — this becomes mqtt_pass in your ESP32 NVS
+```
 
-- require authentication for write endpoints
-- validate payload shape
-- limit batch size
-- reject unknown or oversized payloads
-- log rejected writes without storing sensitive tokens
-- restrict CORS in production
-- return minimal error details to clients
+`/etc/mosquitto/conf.d/mycosense.conf`:
+```
+listener 1883 192.168.4.1
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+```
 
-## ESP32 Node Expectations
+```bash
+sudo systemctl restart mosquitto
+```
 
-Each node should:
+### 4. Provision each ESP32 node
 
-- have a unique node ID
-- use a unique secret or gateway allowlist entry where practical
-- identify firmware version in boot/status output
-- avoid storing production secrets in public firmware files
-- support serial bench testing without requiring cloud services
-- publish only expected JSON fields
+For each node:
+1. Flash the firmware via Arduino IDE (USB cable)
+2. Open the serial monitor at 115200 baud
+3. On first boot, the node halts and shows provisioning prompts
+4. Enter:
+   - `wifi_ssid`: your Pi hotspot SSID
+   - `wifi_pass`: your Pi hotspot password
+   - `mqtt_user`: `myconode` (or whichever user you created)
+   - `mqtt_pass`: the password you set in step 3
+5. The node saves credentials to NVS and reboots automatically
+6. Verify it connects: `{"status":"ready","node":"E01","wifi":true,"ntp":true}`
 
-## MQTT Expectations
+> **NTP note:** `"ntp":false` means the Pi's hotspot has no internet uplink for time sync. Either configure the Pi as an NTP server (chrony + set-local-stratum) or accept that timestamps will be `ts: -1` until sync is available.
 
-For prototype field deployments:
+### 5. Configure the dashboard `.env`
 
-- keep MQTT on the local field network
-- avoid unauthenticated public brokers
-- use username/password or a pre-shared token if supported
-- use topic names that do not leak sensitive field site details
-- log node online/offline status
+```bash
+VITE_PI_URL=http://192.168.4.1:8765
+VITE_PI_TOKEN=<same token as MYCOSENSE_API_TOKEN>
+VITE_SENSOR_WS_URL=
+```
 
-For future deployments:
+Build and deploy (or run dev server on the researcher's laptop connected to the hotspot).
 
-- evaluate MQTT over TLS or a secure local tunnel
-- evaluate signed payloads
-- evaluate per-node topic permissions
+---
 
-## Physical Security
+## At the Field Site
 
-For each deployed enclosure:
+### Physical node placement
+- Record actual physical positions (x, y, depth) for updating `fieldLayout.js` post-deployment
+- GPS survey each node after insertion — update `lat`/`lng` fields
+- Note substrate type and depth in field notebook
 
-- use weather-resistant housing
-- protect cable entry points
-- label the device with non-sensitive identifier only
-- avoid public display of network credentials
-- record enclosure condition at install
-- inspect for tampering after storms or maintenance visits
+### Network checks before leaving
+```bash
+# From a device on the hotspot:
+curl -H "Authorization: Bearer <token>" http://192.168.4.1:8765/status
+# Expected: {"status":"ok","server":"MycoSense Pi","time":...}
 
-## Data Protection
+# Verify no access without token:
+curl http://192.168.4.1:8765/status
+# Expected: 403 or 401
 
-Field data should be classified before publication:
+# Verify Pi is not reachable from outside the hotspot:
+# Disconnect from hotspot, try: curl http://192.168.4.1:8765/status
+# Expected: connection refused
+```
 
-- public demo data
-- internal raw field data
-- validated research data
-- publication-ready dataset
+### Physical tamper considerations
+- Note whether nodes have any physical access controls (locked enclosures)
+- If site has public access, document this in field notes
+- USB ports on ESP32 enclosures: anyone with USB access can read serial output (non-sensitive) and potentially reflash (if enclosure is open)
 
-Do not publish raw field data automatically. Validate sensors, timestamps, calibration, and metadata first.
+---
 
-## Field Maintenance Checklist
+## Data Retention
 
-During each field visit:
+The Pi stores all readings in `mycosense.sqlite` indefinitely. For multi-week deployments:
 
-- inspect enclosure
-- inspect power system
-- inspect electrodes and cabling
-- check node ID and firmware version
-- export or back up local data
-- record abnormal readings
-- document physical changes
-- rotate credentials if compromise is suspected
+```bash
+# Check database size periodically
+du -sh /path/to/mycosense.sqlite
 
-## Incident Response Trigger Conditions
+# Export and archive old data before SD card fills
+# Use the dashboard Export tab, or:
+sqlite3 mycosense.sqlite ".dump" > backup_$(date +%Y%m%d).sql
+```
 
-Open an incident note if any of these occur:
+No automated retention policy is configured. Plan for manual management.
 
-- unknown device appears on the field network
-- unexpected gateway exposure is discovered
-- suspicious writes appear in the database
-- field node is missing or physically altered
-- secrets are committed to Git
-- public site displays live data before approval
-- dataset is published with incorrect live/simulated status
+---
 
+## Returning from the Field
+
+1. Export all session data from the dashboard before powering down
+2. Generate a provenance hash for each session dataset
+3. Archive the SQLite database from the Pi
+4. Update `fieldLayout.js` with surveyed GPS coordinates
+5. Document any anomalies, tamper observations, or sensor failures in field notes
+
+---
+
+## Incident Response
+
+If you suspect data was injected or tampered with:
+
+1. Stop the Pi server: `sudo systemctl stop mycosense-pi`
+2. Make a copy of the database before any further writes: `cp mycosense.sqlite mycosense_incident_$(date +%Y%m%d_%H%M%S).sqlite`
+3. Check `received_at` vs `timestamp` columns — a large discrepancy suggests injected readings
+4. Check for readings with `sensor_id` values not matching your known node IDs
+5. Check for `ts: -1` readings mixed with real timestamped readings (could indicate a replay)
+6. Rotate the API token and MQTT password before redeploying
+7. Re-flash all ESP32 nodes and re-provision credentials
+
+If the Pi's SD card was physically accessed, treat all data on that card as untrusted.

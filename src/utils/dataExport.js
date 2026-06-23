@@ -3,14 +3,23 @@
  * CSV and SQLite logging utilities for electrode session data.
  *
  * CSV export: browser download, works everywhere, no dependencies.
- * SQLite export: uses sql.js (WASM) to build a proper .sqlite file in-browser.
+ * SQLite export: uses sql.js (npm package, no CDN) to build a .sqlite file in-browser.
  *
  * SQLite schema:
  *   readings(id TEXT, label TEXT, zone TEXT, value REAL, timestamp INTEGER, unit TEXT)
  *   sessions(session_id TEXT, started_at INTEGER, ended_at INTEGER, notes TEXT)
  */
 
+import initSqlJs from 'sql.js'
+import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
+
 // ─── CSV Export ──────────────────────────────────────────────────────────────
+
+// RFC 4180 quoting: wrap every field in double-quotes, escape internal quotes.
+// Prevents formula injection when opened in spreadsheet applications.
+function csvEscape(v) {
+  return `"${String(v ?? '').replace(/"/g, '""')}"`
+}
 
 /**
  * Convert a flat array of reading objects to CSV string.
@@ -26,7 +35,7 @@ export function readingsToCSV(readings) {
     r.value,
     r.unit ?? 'mV',
   ])
-  return [headers, ...rows].map(row => row.join(',')).join('\n')
+  return [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\n')
 }
 
 /**
@@ -54,20 +63,7 @@ export function downloadCSV(readings, filename = null) {
  * @param {Object} sessionMeta - { sessionId, startedAt, endedAt, notes }
  */
 export async function downloadSQLite(readings, sessionMeta = {}) {
-  // Dynamically load sql.js from CDN if not already loaded
-  if (!window.initSqlJs) {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js'
-      script.onload  = resolve
-      script.onerror = reject
-      document.head.appendChild(script)
-    })
-  }
-
-  const SQL = await window.initSqlJs({
-    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
-  })
+  const SQL = await initSqlJs({ locateFile: () => sqlWasmUrl })
 
   const db = new SQL.Database()
 

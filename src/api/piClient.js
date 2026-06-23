@@ -9,11 +9,20 @@
  *   POST /readings  — batch post sensor readings
  *   GET  /status    — ping / health check
  *   GET  /sessions  — list stored sessions
+ *
+ * Auth: set VITE_PI_TOKEN in .env to match MYCOSENSE_API_TOKEN on the Pi.
+ * If unset, auth header is omitted (Pi server will reject if token is configured).
  */
 
-const PI_URL = import.meta.env.VITE_PI_URL || 'http://mycosense.local:8765'
-const BATCH_SIZE    = 50    // readings per POST
-const BATCH_INTERVAL = 5000 // ms between flushes
+const PI_URL    = import.meta.env.VITE_PI_URL   || 'http://mycosense.local:8765'
+const PI_TOKEN  = import.meta.env.VITE_PI_TOKEN || ''
+const BATCH_SIZE     = 50     // readings per POST
+const BATCH_INTERVAL = 5000   // ms between flushes
+const MAX_QUEUE      = 5000   // prevent unbounded growth when Pi is unreachable
+
+function authHeaders() {
+  return PI_TOKEN ? { 'Authorization': `Bearer ${PI_TOKEN}` } : {}
+}
 
 export class PiClient {
   constructor(onStatusChange) {
@@ -39,7 +48,10 @@ export class PiClient {
 
   async _ping() {
     try {
-      const res = await fetch(`${PI_URL}/status`, { signal: AbortSignal.timeout(2000) })
+      const res = await fetch(`${PI_URL}/status`, {
+        signal: AbortSignal.timeout(2000),
+        headers: authHeaders(),
+      })
       return res.ok
     } catch { return false }
   }
@@ -47,6 +59,10 @@ export class PiClient {
   enqueue(readings) {
     if (!this.alive) return
     this.queue.push(...readings)
+    // Drop oldest readings if queue grows beyond cap (Pi persistently unreachable)
+    if (this.queue.length > MAX_QUEUE) {
+      this.queue.splice(0, this.queue.length - MAX_QUEUE)
+    }
   }
 
   _startFlushLoop() {
@@ -59,13 +75,17 @@ export class PiClient {
     try {
       await fetch(`${PI_URL}/readings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ readings: batch, timestamp: Date.now() }),
         signal: AbortSignal.timeout(3000)
       })
     } catch {
-      // Re-queue on failure — don't lose data
+      // Re-queue on transient failure — don't lose data
       this.queue.unshift(...batch)
+      // Re-apply cap after re-queue
+      if (this.queue.length > MAX_QUEUE) {
+        this.queue.splice(0, this.queue.length - MAX_QUEUE)
+      }
     }
   }
 

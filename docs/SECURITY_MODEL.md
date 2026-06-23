@@ -1,180 +1,96 @@
 # MycoSense Security Model
 
-This document defines the defensive security model for MycoSense.
+## Design Principles
 
-## Purpose
+1. **Local-first, not cloud-first.** All sensor data stays on the researcher's hardware unless explicitly exported. No telemetry, no analytics, no third-party data processors.
+2. **Network perimeter is the primary trust boundary.** The Pi server trusts the LAN hotspot. The hotspot is the outer perimeter. Defense in depth is applied within that perimeter.
+3. **Mock mode is always safe.** The public demo never contacts real hardware.
+4. **No secrets in source.** Credentials belong in environment variables or device NVS, never in committed code.
 
-MycoSense is a local-first ecological sensing platform. It combines a browser dashboard, simulated and live data ingestion paths, Raspberry Pi gateway software, ESP32 firmware, and future field-deployed sensor nodes.
+## Trust Zones
 
-The security model exists to prevent:
+```
+[ Internet ]
+      │
+      ▼
+[ Vercel CDN ] ── serves static dashboard bundle (mock mode only)
+      │
+      │  (no path from Vercel to Pi — mDNS doesn't traverse internet)
+      │
+[ LAN Hotspot: 192.168.4.x ]
+      │
+      ├── [ Researcher's Browser ] ── dashboard with live hardware
+      │         │  HTTP (bearer token)
+      │         ▼
+      │   [ Pi Server :8765 ] ── FastAPI + SQLite
+      │         ▲
+      │         │  MQTT (authenticated)
+      │         │
+      └── [ ESP32 Nodes ] ── electrode + weather sensors
+```
 
-- accidental public exposure of local field devices
-- unauthorized data ingestion
-- tampering with sensor readings
-- leakage of WiFi, MQTT, API, or deployment secrets
-- confusion between simulated data and live field data
-- avoidable loss of research data
+## Authentication
 
-## System Components
+### Pi server
+- Bearer token (`MYCOSENSE_API_TOKEN` environment variable)
+- Token is a 64-character hex secret generated at deploy time
+- Dashboard sends token in `Authorization: Bearer <token>` header
+- Set `VITE_PI_TOKEN` in dashboard `.env` to match
 
-### Dashboard
+### MQTT
+- Username/password authentication (`mqtt_user` / `mqtt_pass` in ESP32 NVS)
+- Mosquitto password file on Pi: `sudo mosquitto_passwd /etc/mosquitto/passwd myconode`
+- Add `require_certificate false` + `password_file /etc/mosquitto/passwd` to `mosquitto.conf`
 
-The dashboard visualizes sensor and weather readings. In public demo mode, it should run on simulated or mock data unless live publication is explicitly approved.
+### Dashboard → ESP32
+- No direct path. Dashboard receives data from Pi server or USB serial.
+- Web Serial API requires explicit user port selection (browser permission gate)
 
-### Raspberry Pi Gateway
+## Data Flow and Sensitivity
 
-The Pi gateway receives readings and stores local data. It should be treated as field infrastructure, not a public web service.
+| Data | Sensitivity | Where stored |
+|---|---|---|
+| Raw electrode readings (mV) | Low — non-identifying sensor values | Browser memory, Pi SQLite, optional CSV/SQLite export |
+| Weather (temp, humidity, etc.) | Low | Same as above |
+| Node placement metadata | Low — physical coordinates not yet surveyed | `fieldLayout.js` (source code, intentionally public) |
+| Calibration baselines | Low | Browser localStorage |
+| Provenance hash | Publishable — designed to be posted on-chain | Clipboard only; researcher controls posting |
+| WiFi credentials | High | ESP32 NVS only — not in source |
+| Pi API token | High | Environment variable on Pi and in `.env` — not in source |
+| MQTT credentials | High | ESP32 NVS + Mosquitto passwd file — not in source |
 
-### ESP32 Nodes
+## Threat Model
 
-ESP32-C6 or ESP32-S3 nodes collect electrode and environmental readings. They may publish over serial, MQTT, or local network pathways depending on configuration.
+### Threats within scope
+| Threat | Mitigated by |
+|---|---|
+| Fake sensor readings injected via HTTP | Pi server bearer token auth |
+| Cross-origin requests from malicious website | Restricted CORS allow-list |
+| Oversized request body exhausting Pi RAM/disk | Batch size cap (200 readings), row limit cap (5 000) |
+| WiFi credentials extracted from public repo | Credentials removed from source; stored in NVS |
+| Formula injection in CSV exports | RFC 4180 quoting on all fields |
+| CDN-served malicious JavaScript | sql.js bundled from npm; CSP blocks external scripts |
+| Browser session reading Pi data cross-origin | CORS + bearer token required |
 
-### Data Store
+### Threats not in scope for current phase
+| Threat | Reason / Plan |
+|---|---|
+| MQTT message injection by LAN device | Requires HMAC signing — planned Phase 2 |
+| MQTT replay attacks | Requires monotonic sequence numbers — planned Phase 2 |
+| Pi server TLS | Suitable for LAN only; TLS adds complexity without a CA |
+| Physical tampering with field nodes | Physical security is site-operator responsibility |
+| Firmware extraction via JTAG | Secure boot not yet configured |
+| OTA firmware update attacks | No OTA mechanism; physical reflash required |
 
-The current Pi server stores readings locally. Any future public datasets should be validated, documented, and released intentionally.
+## Configuration Checklist
 
-## Trust Boundaries
+Before any lab or field deployment:
 
-### Boundary 1: Public Internet to Dashboard
-
-Public users may view the demo dashboard. They should not be able to write sensor data, access gateway endpoints, or discover field network details.
-
-### Boundary 2: Dashboard to Pi Gateway
-
-The dashboard may send or receive local data when configured for live hardware. This boundary needs authentication and network restrictions before deployment.
-
-### Boundary 3: ESP32 Node to Pi Gateway
-
-Field nodes should identify themselves and eventually authenticate messages. Unsigned or unauthenticated readings should be considered provisional.
-
-### Boundary 4: Local Field Network to Foundation Systems
-
-The field network should remain isolated unless a deliberate sync workflow is implemented and reviewed.
-
-### Boundary 5: Research Data to Public Dataset
-
-Raw field readings should not become public automatically. Data must be validated, labeled, and reviewed before publication.
-
-## Assets
-
-Important assets include:
-
-- live sensor data
-- calibration data
-- node identifiers
-- field site metadata
-- WiFi credentials
-- MQTT credentials
-- API keys or pre-shared tokens
-- local SQLite databases
-- firmware source and release versions
-- published datasets
-- provenance hashes
-
-## Threats
-
-### T1: Public Exposure of Pi Gateway
-
-A Pi gateway listening on all interfaces can be accidentally exposed through router, tunnel, or cloud proxy configuration.
-
-Primary controls:
-
-- local network only
-- firewall rules
-- authentication on write endpoints
-- no public port forwarding
-- documented deployment checklist
-
-### T2: Unauthorized Sensor Data Injection
-
-If write endpoints accept unauthenticated data, an attacker or misconfigured client could inject false readings.
-
-Primary controls:
-
-- API key or per-node secret
-- payload validation
-- batch size limits
-- source logging
-- future message signing
-
-### T3: Credential Leakage
-
-Hardcoded WiFi or MQTT credentials in source code can leak through Git history or public forks.
-
-Primary controls:
-
-- placeholders only in repository
-- `.env.example` for examples
-- field secrets stored outside Git
-- secret scanning before release
-
-### T4: Node Spoofing
-
-A rogue device could imitate a node identifier and submit fake readings.
-
-Primary controls:
-
-- node inventory
-- per-node secret
-- gateway allowlist
-- signed or keyed messages in later versions
-- anomaly detection for impossible readings
-
-### T5: Physical Tampering
-
-Field nodes may be accessible to weather, animals, visitors, or malicious actors.
-
-Primary controls:
-
-- tamper-resistant enclosure
-- physical labels
-- inspection checklist
-- deployment log
-- unexpected-reset monitoring
-
-### T6: Research Overclaiming
-
-A public repository can accidentally imply live deployment or field validation before it happens.
-
-Primary controls:
-
-- `FIELD_STATUS.md`
-- cautious README language
-- milestone review
-- explicit distinction between simulated and field-verified data
-
-## Baseline Controls
-
-Before field deployment:
-
-- remove real credentials from firmware
-- add API key enforcement for write endpoints
-- restrict CORS for the Pi server
-- document firewall rules
-- create node inventory
-- define data retention and backup process
-- validate build and run instructions
-- review public documentation for overclaiming
-
-## Deferred Controls
-
-These controls are recommended after the prototype stage:
-
-- message signing for sensor payloads
-- rotating node secrets
-- MQTT TLS or encrypted tunnel where practical
-- firmware integrity checks
-- automated dependency scanning
-- reproducible firmware release builds
-- device attestation or boot measurements if hardware allows
-
-## Security Review Cadence
-
-Review this model:
-
-- before first field deployment
-- after adding new ingestion endpoints
-- after changing firmware communication paths
-- before publishing live datasets
-- after any suspected security incident
-
+- [ ] Generate `MYCOSENSE_API_TOKEN`: `python3 -c "import secrets; print(secrets.token_hex(32))"`
+- [ ] Set `MYCOSENSE_API_TOKEN` in Pi systemd unit or `/etc/environment`
+- [ ] Set `MYCOSENSE_ALLOWED_ORIGINS` to the dashboard's actual origin
+- [ ] Set `VITE_PI_TOKEN` in dashboard `.env` to match the above token
+- [ ] Provision each ESP32 node via USB serial (first boot dialog)
+- [ ] Configure Mosquitto password file with MQTT credentials matching NVS
+- [ ] Bind Pi uvicorn to the LAN interface IP, not `0.0.0.0`
+- [ ] Verify Pi is not reachable from outside the hotspot (no second internet-facing interface active)
