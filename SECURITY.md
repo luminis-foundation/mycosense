@@ -43,6 +43,8 @@ Please include:
 - sql.js bundled from npm (no CDN dependency)
 - Content-Security-Policy configured in `vercel.json`
 
+> **`VITE_PI_TOKEN` warning:** `VITE_*` environment variables are inlined into the browser bundle at build time. Do **not** set `VITE_PI_TOKEN` in a public or Vercel-hosted deployment — the token will be visible to anyone who inspects the built JS. This variable is only safe in local or private dashboard builds where the Pi and the browser share a trusted LAN and the bundle is not publicly accessible.
+
 ## Known Limitations (Pre-Field)
 
 - MQTT messages are not signed — a device on the LAN hotspot can inject fake readings
