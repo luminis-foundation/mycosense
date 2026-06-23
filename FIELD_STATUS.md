@@ -2,9 +2,23 @@
 
 **Last updated:** 2026-06
 
-## Current Status: Lab / Bench Phase
+## Deployment Ladder
 
-MycoSense is under active development. Hardware components exist and have been tested on the bench, but a complete, continuous field deployment has not yet been validated.
+| Step | Milestone | Status |
+|---|---|---|
+| 1 | Simulated public dashboard | ✅ Complete — `mycosense.vercel.app` (mock data) |
+| 2 | Bench-tested hardware prototype | ✅ Complete — ESP32 + Pi validated on bench |
+| 3 | Controlled on-site prototype deployment at Foundation office site | 📋 Planned |
+| 4 | Validated local field dataset | ⬜ Future |
+| 5 | Broader Pecos watershed deployment / public dataset release | ⬜ Future |
+
+## Current Status: Bench-Tested — On-Site Prototype Planned
+
+MycoSense hardware has been assembled and tested on the bench. The full end-to-end stack (ESP32 → Pi → Dashboard) is bench-validated but has not yet been deployed outdoors.
+
+Prototype sensor nodes are planned for controlled on-site deployment at the Luminis Foundation office site in Rowe, New Mexico. This first deployment is intended for bench-to-field validation, calibration, local network testing, and data quality review before any broader public dataset release.
+
+## Component Status
 
 | Component | Status |
 |---|---|
@@ -14,6 +28,7 @@ MycoSense is under active development. Hardware components exist and have been t
 | ESP32 firmware (Serial output) | Working on bench |
 | ESP32 firmware (MQTT over WiFi) | Working on bench |
 | Full end-to-end (ESP32 → Pi → Dashboard) | Bench-validated, not field-deployed |
+| Controlled on-site prototype deployment | Planned — Foundation office site, Rowe, NM |
 | Solar power + continuous outdoor operation | Not yet validated |
 | GPS surveying of node positions | Not yet completed — coordinates set to null |
 | NTP synchronization | Implemented; requires WiFi at startup |
@@ -25,12 +40,15 @@ The public Vercel deployment at `mycosense.vercel.app` runs entirely in **mock m
 
 ## What Is Not Yet Ready
 
+- Controlled on-site prototype deployment (Step 3 — planned next)
 - Continuous unattended outdoor operation (solar + battery runtime not validated)
 - Weatherproofing of enclosures
 - GPS coordinates for electrode placement
 - Production MQTT TLS configuration
 - Automated firmware OTA updates
 - Data retention policy for long-term logging
+- Validated local field dataset (Step 4)
+- Broader Pecos watershed deployment (Step 5)
 
 ## Research Anchor
 
