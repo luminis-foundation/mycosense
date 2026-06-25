@@ -138,7 +138,7 @@ export class SerialBridge {
     try {
       await this.reader?.cancel()
       await this.port?.close()
-    } catch {}
+    } catch { /* already closing or closed — ignore */ }
     this.onStatusChange?.('idle')
     console.info('[SerialBridge] Disconnected.')
   }

@@ -31,7 +31,7 @@ export default function App() {
 
   const processed      = useSignalProcessor(readings, history)
   const ecosystemScore = useEcosystemScore(processed)
-  const { weatherByZone, weatherHistory, getConditionLabel } = useWeatherStream(readings)
+  const { weatherByZone, getConditionLabel } = useWeatherStream(readings)
 
   const zoneHealthScores = {
     'Rhizosphere A': Math.round((processed['E01']?.health + processed['E02']?.health) / 2) || 0,
@@ -45,7 +45,6 @@ export default function App() {
     notifications,
     unreadCount,
     isOpen: notificationsOpen,
-    push: pushNotification,
     markAllRead,
     dismiss: dismissNotification,
     clearAll: clearAllNotifications,

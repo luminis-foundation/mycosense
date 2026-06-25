@@ -1,4 +1,4 @@
-import schema from './v1/sensor-reading.schema.json' assert { type: 'json' }
+import schema from './v1/sensor-reading.schema.json' with { type: 'json' }
 
 export { schema }
 

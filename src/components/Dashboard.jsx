@@ -21,7 +21,7 @@ const TABS = ['Overview', 'Zones', 'Weather', 'Field Map', 'Calibration', 'Expor
 
 export function Dashboard({
   readings, processed, history, ecosystemScore, connectionStatus, lastUpdated,
-  dataLogger, calibration, serialStatus, portLabel, serialSupported, connectSerial, disconnectSerial,
+  dataLogger, calibration, serialStatus, portLabel, connectSerial, disconnectSerial,
   piStatus, weatherByZone, zoneHealthScores, getConditionLabel,
   unreadCount, openNotifications, closeNotifications, notificationsOpen,
   notifications, dismissNotification, markAllRead, clearAllNotifications,
