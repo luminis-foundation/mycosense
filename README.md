@@ -1,4 +1,4 @@
-# MycoSense 🍄
+# MycoSense
 
 **Live Ecosystem Health Monitoring via Electrode Sensor Arrays**
 
@@ -17,9 +17,9 @@ Mycelium networks generate measurable electrochemical signals that respond to en
 ## Stack
 
 - **Frontend:** React 18 + Tailwind CSS
-- **Data Layer:** WebSocket stream / serial port ingestion
-- **Signal Processing:** Custom hooks with rolling window smoothing
+- **Signal Processing:** Custom DSP hooks (rolling window, Z-score spike detection, FFT, entropy)
 - **Visualization:** Recharts
+- **Tests:** Vitest
 - **ESP32 Firmware:** Arduino/C++ scaffold for sensor nodes (ESP32-C6 / ESP32-S3)
 - **Pi Gateway:** Python-based Raspberry Pi coordinator for local data ingestion
 - **Deployment:** Static export (offline-first compatible); public demo at `mycosense.vercel.app` (simulated data)
@@ -69,6 +69,8 @@ mycosense/
 │   ├── data/
 │   │   ├── mockSensorData.js      # Dev/demo data generator
 │   │   └── fieldLayout.js         # Field zone layout definitions
+│   ├── schema/                     # Versioned JSON Schema + lightweight validator
+│   │   └── v1/                     # sensor-reading.schema.json (draft-07)
 │   ├── pages/
 │   │   └── AboutPage.jsx          # About / info page
 │   ├── App.jsx
@@ -79,10 +81,13 @@ mycosense/
 │       └── mycosense_node.ino
 ├── pi-server/                      # Raspberry Pi gateway scaffold
 │   └── main.py
-├── docs/                           # Security and deployment documentation
+├── docs/                           # Security, hardware, and deployment documentation
 │   ├── SECURITY_MODEL.md
 │   ├── FIELD_DEPLOYMENT_SECURITY.md
-│   └── RED_BLUE_TEAM_PLAN.md
+│   ├── RED_BLUE_TEAM_PLAN.md
+│   ├── hardware-integration.md     # VITE_SENSOR_WS_URL, serial, ESP32, Pi
+│   ├── field-deployment.md         # Mock vs live mode, session protocol
+│   └── ethics-and-privacy.md       # Location data, PII, health claim policy
 ├── public/
 ├── SECURITY.md
 ├── FIELD_STATUS.md
@@ -97,11 +102,26 @@ mycosense/
 
 ```bash
 npm install
-npm run dev
+npm run dev        # dev server at http://localhost:3000
+npm run lint       # ESLint
+npm run test       # Vitest unit tests
+npm run build      # production build
 ```
 
-To connect live hardware, configure `VITE_SENSOR_WS_URL` in `.env`.
-Without hardware, the dashboard runs in mock mode automatically.
+Copy `.env.example` to `.env` to configure live hardware. Without `VITE_SENSOR_WS_URL`, the dashboard runs in **mock mode** automatically.
+
+See [`docs/hardware-integration.md`](docs/hardware-integration.md) for WebSocket format, USB serial setup, and ESP32/Pi hardware details.
+See [`docs/field-deployment.md`](docs/field-deployment.md) for the session lifecycle (calibrate → collect → export → archive).
+
+---
+
+## Ethics and Privacy
+
+- **No private land GPS coordinates** in published datasets — use coarse grid references only
+- **No volunteer PII** in session exports — `sessionId` must be an opaque identifier
+- **Signal labels are not ecological diagnoses** — "Stressed" means variance outside a threshold band, not a verified ecological state
+
+See [`docs/ethics-and-privacy.md`](docs/ethics-and-privacy.md) for the full policy.
 
 Copy `.env.example` to `.env` and fill in values. The file is gitignored — never commit a populated `.env`.
 

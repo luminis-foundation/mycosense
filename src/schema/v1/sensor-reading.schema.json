@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "mycosense/sensor-reading/v1",
+  "title": "MycoSense Sensor Reading (v1)",
+  "description": "Versioned schema for a single timestamped sensor snapshot from a MycoSense field deployment. Location is stored at coarse resolution (100 m grid) — no precise GPS coordinates.",
+  "type": "object",
+  "required": ["schemaVersion", "sessionId", "timestamp", "sensors"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version. Increment minor for backwards-compatible additions, major for breaking changes."
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for this data-collection session. Must not contain volunteer names or PII."
+    },
+    "timestamp": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix epoch milliseconds when this snapshot was captured."
+    },
+    "location": {
+      "type": "object",
+      "description": "Coarse deployment location. Do not store precise GPS coordinates — use a 100 m grid reference or named site only.",
+      "additionalProperties": false,
+      "properties": {
+        "siteName": {
+          "type": "string",
+          "description": "Named research site (e.g. 'Pecos Canyon Plot A')."
+        },
+        "gridRef": {
+          "type": "string",
+          "description": "100 m grid square reference (e.g. MGRS or OS grid). Not a precise coordinate."
+        },
+        "elevationM": {
+          "type": "number",
+          "description": "Approximate elevation above sea level in metres."
+        }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "description": "Per-electrode baseline offsets captured before the session started.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["baselineMv", "capturedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "baselineMv": {
+            "type": "number",
+            "description": "Rolling-mean baseline in millivolts at time of capture."
+          },
+          "capturedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Unix epoch milliseconds when the baseline was captured."
+          }
+        }
+      }
+    },
+    "sensors": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Electrode readings for this snapshot.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "zone", "value", "unit", "timestamp"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^E[0-9]{2}$",
+            "description": "Electrode identifier (e.g. 'E01')."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable node label (e.g. 'Node Alpha')."
+          },
+          "zone": {
+            "type": "string",
+            "description": "Deployment zone (e.g. 'Rhizosphere A', 'Substrate B', 'Canopy C')."
+          },
+          "value": {
+            "type": "number",
+            "description": "Raw electrode reading in millivolts."
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["mV"],
+            "description": "Unit of the value field. Currently always mV."
+          },
+          "timestamp": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Unix epoch milliseconds for this individual reading."
+          },
+          "weather": {
+            "type": "object",
+            "description": "Optional co-located environmental readings from embedded climate sensors.",
+            "additionalProperties": false,
+            "properties": {
+              "tempC": { "type": "number", "description": "Air temperature in Celsius." },
+              "humidity": { "type": "number", "minimum": 0, "maximum": 100, "description": "Relative humidity 0-100%." },
+              "pressureHpa": { "type": "number", "minimum": 0, "description": "Barometric pressure in hPa." },
+              "lightLux": { "type": "number", "minimum": 0, "description": "Ambient light in lux." },
+              "windKph": { "type": "number", "minimum": 0, "description": "Wind speed in km/h." },
+              "rainMm": { "type": "number", "minimum": 0, "description": "Rainfall accumulation in mm." }
+            }
+          }
+        }
+      }
+    }
+  }
+}

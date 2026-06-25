@@ -86,7 +86,7 @@ export function useWeatherStream(readings) {
   // Derive conditions summary for display
   const getConditionLabel = useCallback((weather) => {
     if (!weather || weather.tempC === null) return { label: 'No sensor', icon: '—' }
-    const { tempC, humidity, lightLux, windKph, rainMm } = weather
+    const { tempC, lightLux, windKph, rainMm } = weather
 
     if (rainMm > 0.1)              return { label: 'Raining',   icon: '🌧', color: 'text-blue-400'  }
     if (windKph > 20)              return { label: 'Windy',     icon: '💨', color: 'text-myco-mist' }

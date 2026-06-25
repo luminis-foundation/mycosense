@@ -4,12 +4,14 @@
  *
  * CSV export: browser download, works everywhere, no dependencies.
  * SQLite export: uses sql.js (npm package, no CDN) to build a .sqlite file in-browser.
+ * JSON export: v1-schema-compatible payload for archival and Pi-server upload.
  *
  * SQLite schema:
  *   readings(id TEXT, label TEXT, zone TEXT, value REAL, timestamp INTEGER, unit TEXT)
  *   sessions(session_id TEXT, started_at INTEGER, ended_at INTEGER, notes TEXT)
  */
 
+import { readingsToJSON, csvFilename } from './exportUtils.js'
 import initSqlJs from 'sql.js'
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 
@@ -26,7 +28,7 @@ function csvEscape(v) {
  */
 export function readingsToCSV(readings) {
   const headers = ['timestamp', 'datetime', 'sensor_id', 'label', 'zone', 'value_mV', 'unit']
-  const rows = readings.map(r => [
+  const rows = readings.map((r) => [
     r.timestamp,
     new Date(r.timestamp).toISOString(),
     r.id,
@@ -35,20 +37,41 @@ export function readingsToCSV(readings) {
     r.value,
     r.unit ?? 'mV',
   ])
-  return [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\n')
+  return [headers, ...rows].map((row) => row.map(csvEscape).join(',')).join('\n')
 }
 
 /**
  * Trigger a browser download of a CSV file.
  */
-export function downloadCSV(readings, filename = null) {
-  const csv  = readingsToCSV(readings)
-  const name = filename ?? `mycosense_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`
+export function downloadCSV(readings, sessionId = null) {
+  const csv = readingsToCSV(readings)
+  const name = sessionId
+    ? csvFilename(sessionId)
+    : `mycosense_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`
   const blob = new Blob([csv], { type: 'text/csv' })
-  const url  = URL.createObjectURL(blob)
-  const a    = document.createElement('a')
-  a.href     = url
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
   a.download = name
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// ─── JSON Export ─────────────────────────────────────────────────────────────
+
+/**
+ * Trigger a browser download of a v1-schema-compatible JSON file.
+ * @param {Array}  readings
+ * @param {Object} metadata - { sessionId, location?, calibration? }
+ */
+export function downloadJSON(readings, metadata = {}) {
+  const json = readingsToJSON(readings, metadata)
+  const sid = metadata.sessionId ?? `session_${Date.now()}`
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `mycosense_${sid}.json`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -68,7 +91,6 @@ export async function downloadSQLite(readings, sessionMeta = {}) {
 
   const db = new SQL.Database()
 
-  // Create schema
   db.run(`
     CREATE TABLE IF NOT EXISTS sessions (
       session_id  TEXT PRIMARY KEY,
@@ -90,30 +112,29 @@ export async function downloadSQLite(readings, sessionMeta = {}) {
     CREATE INDEX IF NOT EXISTS idx_timestamp ON readings(timestamp);
   `)
 
-  // Insert session
   const sid = sessionMeta.sessionId ?? `session_${Date.now()}`
-  db.run(
-    `INSERT OR REPLACE INTO sessions VALUES (?, ?, ?, ?)`,
-    [sid, sessionMeta.startedAt ?? Date.now(), sessionMeta.endedAt ?? Date.now(), sessionMeta.notes ?? '']
-  )
+  db.run(`INSERT OR REPLACE INTO sessions VALUES (?, ?, ?, ?)`, [
+    sid,
+    sessionMeta.startedAt ?? Date.now(),
+    sessionMeta.endedAt ?? Date.now(),
+    sessionMeta.notes ?? '',
+  ])
 
-  // Insert readings in batches
   const stmt = db.prepare(
     `INSERT INTO readings (session_id, sensor_id, label, zone, value, timestamp, unit)
      VALUES (?, ?, ?, ?, ?, ?, ?)`
   )
-  readings.forEach(r => {
+  readings.forEach((r) => {
     stmt.run([sid, r.id, r.label ?? '', r.zone ?? '', r.value, r.timestamp, r.unit ?? 'mV'])
   })
   stmt.free()
 
-  // Export and download
   const data = db.export()
   db.close()
   const blob = new Blob([data], { type: 'application/octet-stream' })
-  const url  = URL.createObjectURL(blob)
-  const a    = document.createElement('a')
-  a.href     = url
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
   a.download = `mycosense_${sid}.sqlite`
   a.click()
   URL.revokeObjectURL(url)

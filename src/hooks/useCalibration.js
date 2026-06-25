@@ -23,7 +23,7 @@ function loadCalibration() {
 }
 
 function saveCalibration(cal) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cal)) } catch {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cal)) } catch { /* storage unavailable — ignore */ }
 }
 
 export function useCalibration() {

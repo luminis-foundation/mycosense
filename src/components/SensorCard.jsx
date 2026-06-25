@@ -22,7 +22,7 @@ function HealthBar({ score }) {
 
 export function SensorCard({ reading, processed, history }) {
   const { id, label, zone, value, unit } = reading
-  const { smoothed, spike, health, stdDev, zScore, dominantHz, entropy, trend, fatigued } = processed
+  const { spike, health, stdDev, zScore, dominantHz, entropy, trend } = processed
 
   return (
     <div className={`card card-hover transition-all duration-300 ${spike ? 'border-myco-alert' : 'border-myco-moss'}`}>
