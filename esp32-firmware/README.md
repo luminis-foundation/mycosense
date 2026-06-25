@@ -65,7 +65,7 @@ POWER
 
 ## Node Configuration
 
-Before flashing each node, update these defines in `mycosense_node.ino`:
+Before flashing each node, update the identity defines in `mycosense_node.ino`:
 
 ```cpp
 #define NODE_ID    "E01"           // E01–E06
@@ -74,12 +74,40 @@ Before flashing each node, update these defines in `mycosense_node.ino`:
 #define NODE_DEPTH "15cm"          // Electrode depth
 ```
 
-And WiFi credentials:
-```cpp
-#define WIFI_SSID  "LuminisNet"
-#define WIFI_PASS  "mycofield"
-#define MQTT_BROKER "192.168.4.1"  // Pi IP
-```
+**Do not add WiFi or MQTT credentials to the source file.** Credentials are provisioned separately (see below).
+
+---
+
+## Credential Provisioning
+
+Credentials (WiFi SSID/password, MQTT username/password) are stored in ESP32 **NVS** (non-volatile storage), not in source code. This means:
+
+- They are never committed to version control
+- They survive firmware reflash (NVS is a separate flash partition)
+- They can be updated without reflashing firmware
+
+### First-boot provisioning
+
+On first boot with empty NVS, the node halts and waits for Serial input:
+
+1. Flash the firmware (USB cable)
+2. Open a serial monitor at **115200 baud**
+3. The node prints: `{"provision":true,"msg":"No credentials in NVS..."}`
+4. Enter when prompted:
+   - `wifi_ssid` — your Pi hotspot SSID
+   - `wifi_pass` — your Pi hotspot password
+   - `mqtt_user` — MQTT username (from Mosquitto password file; blank if no MQTT auth)
+   - `mqtt_pass` — MQTT password (blank if no MQTT auth)
+5. The node saves credentials and reboots automatically
+6. Confirm: `{"status":"ready","node":"E01","wifi":true,"ntp":true,"bmp":true}`
+
+### Re-provisioning
+
+To change credentials: in Arduino IDE, select **Tools → Erase Flash → All Flash Contents**, then re-upload and provision again.
+
+### NTP timestamps
+
+After WiFi connects, the node syncs time via NTP (`pool.ntp.org`). Until sync completes, the `ts` field in readings is `-1`. Data with `ts: -1` should not be used for research-grade timestamp analysis. The `received_at` field in the Pi database is always a valid server-side timestamp.
 
 ---
 
@@ -87,12 +115,13 @@ And WiFi credentials:
 
 1. Install Arduino IDE 2.x
 2. Add ESP32 board URL in Preferences
-3. Install all libraries above
+3. Install all libraries listed above
 4. Open `mycosense_node.ino`
-5. Set NODE_ID, NODE_LABEL, NODE_ZONE for this physical node
+5. Set `NODE_ID`, `NODE_LABEL`, `NODE_ZONE`, `NODE_DEPTH` for this physical node
 6. Select board: **ESP32C6 Dev Module** or **ESP32S3 Dev Module**
 7. Select correct COM port
 8. Upload
+9. Open serial monitor at 115200 baud and complete credential provisioning
 
 ---
 
@@ -106,7 +135,7 @@ At 115200 baud, each node outputs newline-delimited JSON every 500ms:
   "label": "Node Alpha",
   "zone": "Rhizosphere A",
   "depth": "15cm",
-  "ts": 12345678,
+  "ts": 1718000000000,
   "electrodes": [
     {"ch": 0, "mV": 42.5, "pin": 0},
     {"ch": 1, "mV": -18.2, "pin": 1},
@@ -123,6 +152,8 @@ At 115200 baud, each node outputs newline-delimited JSON every 500ms:
   }
 }
 ```
+
+`ts` is Unix epoch milliseconds when NTP is synced, or `-1` if not yet synced.
 
 The MycoSense dashboard serial bridge reads this format directly.
 The Pi MQTT server also receives this on `mycosense/readings`.
@@ -145,5 +176,7 @@ Simple DIY mycelium electrodes:
 - **Length:** 20–30cm total, 5–15cm insertion depth depending on zone
 - **Spacing:** 5–10cm between probes in same node cluster
 - **Reference:** Single buried rod ~20cm from cluster, connected to GND
+
+---
 
 *Luminis Foundation · EIN 41-4984345 · github.com/luminis-foundation/mycosense*

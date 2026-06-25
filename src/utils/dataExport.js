@@ -3,7 +3,7 @@
  * CSV and SQLite logging utilities for electrode session data.
  *
  * CSV export: browser download, works everywhere, no dependencies.
- * SQLite export: uses sql.js (WASM) to build a proper .sqlite file in-browser.
+ * SQLite export: uses sql.js (npm package, no CDN) to build a .sqlite file in-browser.
  * JSON export: v1-schema-compatible payload for archival and Pi-server upload.
  *
  * SQLite schema:
@@ -12,8 +12,16 @@
  */
 
 import { readingsToJSON, csvFilename } from './exportUtils.js'
+import initSqlJs from 'sql.js'
+import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 
 // ─── CSV Export ──────────────────────────────────────────────────────────────
+
+// RFC 4180 quoting: wrap every field in double-quotes, escape internal quotes.
+// Prevents formula injection when opened in spreadsheet applications.
+function csvEscape(v) {
+  return `"${String(v ?? '').replace(/"/g, '""')}"`
+}
 
 /**
  * Convert a flat array of reading objects to CSV string.
@@ -29,7 +37,7 @@ export function readingsToCSV(readings) {
     r.value,
     r.unit ?? 'mV',
   ])
-  return [headers, ...rows].map((row) => row.join(',')).join('\n')
+  return [headers, ...rows].map((row) => row.map(csvEscape).join(',')).join('\n')
 }
 
 /**
@@ -72,26 +80,14 @@ export function downloadJSON(readings, metadata = {}) {
 
 /**
  * Build and download a SQLite database file from session data.
- * Requires sql.js loaded via CDN (add to index.html or import dynamically).
+ * sql.js is bundled via npm; the WASM binary is resolved by Vite and served
+ * as a static asset — no CDN or runtime script injection required.
  *
  * @param {Array}  readings   - flat array of all session readings
  * @param {Object} sessionMeta - { sessionId, startedAt, endedAt, notes }
  */
 export async function downloadSQLite(readings, sessionMeta = {}) {
-  if (!window.initSqlJs) {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js'
-      script.onload = resolve
-      script.onerror = reject
-      document.head.appendChild(script)
-    })
-  }
-
-  const SQL = await window.initSqlJs({
-    locateFile: (file) =>
-      `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`,
-  })
+  const SQL = await initSqlJs({ locateFile: () => sqlWasmUrl })
 
   const db = new SQL.Database()
 

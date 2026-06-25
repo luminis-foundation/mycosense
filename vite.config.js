@@ -6,6 +6,8 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  // Treat .wasm files as static assets so sql.js can locate them via ?url import
+  assetsInclude: ['**/*.wasm'],
   test: {
     environment: 'node',
     globals: false,
