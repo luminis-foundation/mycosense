@@ -49,7 +49,7 @@ export function Dashboard({
 
         <div className="text-right">
           <p className="label-tag">Pecos River Valley</p>
-          <p className="text-xs font-mono text-myco-spore">Rowe, NM</p>
+          <p className="text-xs font-mono text-myco-spore">Northern New Mexico</p>
           {dataLogger?.recordCount > 0 && (
             <p className="text-xs font-mono text-myco-spore mt-0.5">
               <span className="text-myco-pulse">{dataLogger.recordCount.toLocaleString()}</span> logged

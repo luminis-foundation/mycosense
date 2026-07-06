@@ -57,15 +57,7 @@ This document records the findings from the first defensive security review of M
 
 ## Open Items (Phase 2)
 
-These are known gaps that require more significant architectural work and are deferred to Phase 2 field hardening:
-
-1. **MQTT message signing** — HMAC-SHA256 per message using a shared secret in ESP32 NVS and Pi config. Prevents LAN injection without a compromised credential.
-2. **MQTT sequence numbers** — monotonic counter per node to detect replay or message drop.
-3. **NTP on isolated hotspot** — Pi acts as local NTP server (chrony, stratum 2) for nodes with no internet path to `pool.ntp.org`.
-4. **Pi TLS** — mTLS or at minimum HTTPS via a self-signed CA for the LAN API, removing plaintext token exposure on the wire.
-5. **ESP32 Secure Boot** — prevents firmware replacement by an attacker with physical node access.
-6. **OTA firmware update mechanism** — signed updates pushed from Pi to reduce physical reflash burden at field sites.
-7. **Data retention policy** — automated SQLite archival / pruning on the Pi to prevent SD card exhaustion.
+Phase 2 field hardening covers transport security, message integrity, retention/logging controls, network isolation, and physical security improvements. These items are tracked in the private field-hardening checklist and are required before any live field deployment.
 
 ---
 

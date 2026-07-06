@@ -98,8 +98,8 @@ export function AboutPage() {
       <div className="card">
         <p className="label-tag mb-2">Luminis Foundation</p>
         <p className="text-xs text-myco-spore leading-relaxed">
-          501(c)(3) nonprofit research organization · Rowe, New Mexico · Pecos River Valley<br />
-          EIN 41-4984345 · NM Entity #0008089293<br />
+          New Mexico nonprofit research organization · Northern New Mexico · Pecos River Valley<br />
+          NM Entity #0008089293 · 501(c)(3) application filed — IRS determination pending<br />
           Focused on mycelium-inspired computing, regenerative biosystems, and open-source ecological monitoring infrastructure.
         </p>
         <a

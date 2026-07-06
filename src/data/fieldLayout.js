@@ -15,7 +15,7 @@ export const FIELD_BOUNDS = {
   widthM:  12,
   heightM: 8,
   // Label shown on the map
-  label: 'Pecos Canyon Research Plot — Rowe, NM · Luminis Foundation',
+  label: 'Pecos Canyon Research Plot — Northern NM · Luminis Foundation',
 }
 
 export const ELECTRODE_PLACEMENTS = [

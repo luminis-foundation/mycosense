@@ -15,8 +15,7 @@ export async function hashDataset(readings, metadata = {}) {
     readings: readings.map(r => ({ id: r.id, value: r.value, timestamp: r.timestamp })),
     metadata: {
       foundation: 'Luminis Foundation',
-      ein: '41-4984345',
-      location: 'Rowe, NM — Pecos Canyon',
+      location: 'Northern New Mexico — Pecos River Valley',
       doi: '10.5281/zenodo.20143391',
       generatedAt: Date.now(),
       ...metadata,
@@ -42,7 +41,7 @@ export async function hashDataset(readings, metadata = {}) {
  * Full automated on-chain posting will be added in Phase 3 (Gnosis Safe integration).
  */
 export async function copyHashToClipboard(hashResult) {
-  const text = `MycoSense Dataset Hash\nHash: ${hashResult.hash}\nReadings: ${hashResult.readingCount}\nGenerated: ${new Date(hashResult.generatedAt).toISOString()}\nFoundation: Luminis Foundation | EIN 41-4984345`
+  const text = `MycoSense Dataset Hash\nHash: ${hashResult.hash}\nReadings: ${hashResult.readingCount}\nGenerated: ${new Date(hashResult.generatedAt).toISOString()}\nFoundation: Luminis Foundation`
   await navigator.clipboard.writeText(text)
   return text
 }
