@@ -38,9 +38,9 @@
 - Set `VITE_PI_TOKEN` in dashboard `.env` to match
 
 ### MQTT
-- Username/password authentication (`mqtt_user` / `mqtt_pass` in ESP32 NVS)
-- Mosquitto password file on Pi: `sudo mosquitto_passwd /etc/mosquitto/passwd myconode`
-- Add `require_certificate false` + `password_file /etc/mosquitto/passwd` to `mosquitto.conf`
+- Username/password authentication (credentials stored in ESP32 NVS, not in source)
+- Mosquitto password file on Pi (see private field-deployment checklist for setup)
+- Anonymous connections disabled
 
 ### Dashboard → ESP32
 - No direct path. Dashboard receives data from Pi server or USB serial.
@@ -72,15 +72,9 @@
 | CDN-served malicious JavaScript | sql.js bundled from npm; CSP blocks external scripts |
 | Browser session reading Pi data cross-origin | CORS + bearer token required |
 
-### Threats not in scope for current phase (bench / controlled on-site prototype)
-| Threat | Reason / Plan |
-|---|---|
-| MQTT message injection by LAN device | Requires HMAC signing — planned for post-prototype hardening |
-| MQTT replay attacks | Requires monotonic sequence numbers — planned for post-prototype hardening |
-| Pi server TLS | Suitable for LAN only; TLS adds complexity without a CA |
-| Physical tampering with field nodes | Physical security is site-operator responsibility |
-| Firmware extraction via JTAG | Secure boot not yet configured |
-| OTA firmware update attacks | No OTA mechanism; physical reflash required |
+### Pre-field hardening items (deferred to Phase 2)
+
+MycoSense is currently mock/bench/pre-field infrastructure. Live field deployment requires completion of the private field-hardening checklist, including transport security, message integrity, retention/logging controls, and network isolation review. These items are tracked internally.
 
 ## Configuration Checklist
 

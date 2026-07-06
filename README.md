@@ -144,7 +144,7 @@ For Pi server and ESP32 node configuration, including credential provisioning, s
 
 MycoSense is local-first research infrastructure. The public dashboard currently runs in simulated or mock data mode unless explicitly configured otherwise.
 
-Prototype sensor nodes are planned for controlled on-site deployment at the Luminis Foundation office site in Rowe, New Mexico. This first deployment is intended for bench-to-field validation, calibration, local network testing, and data quality review before any broader public dataset release. See [`FIELD_STATUS.md`](FIELD_STATUS.md) for the full deployment ladder.
+Prototype sensor nodes are planned for controlled on-site deployment at a private test site in Northern New Mexico. This first deployment is intended for bench-to-field validation, calibration, local network testing, and data quality review before any broader public dataset release. See [`FIELD_STATUS.md`](FIELD_STATUS.md) for the full deployment ladder.
 
 Before live field deployment, review:
 
@@ -157,6 +157,10 @@ Before live field deployment, review:
 Do not commit real WiFi credentials, MQTT passwords, API keys, private keys, or production `.env` files.
 
 ---
+
+## Public / Private Boundary
+
+Public repositories contain public-safe research, documentation, and demonstration code. Private legal records, financial records, credential procedures, exact deployment locations, raw sensitive field records, board signatures, internal risk registers, and operational security runbooks are retained privately by authorized Foundation officers.
 
 ## Luminis Foundation
 

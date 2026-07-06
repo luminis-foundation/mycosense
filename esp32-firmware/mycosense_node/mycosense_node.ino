@@ -1,6 +1,6 @@
 /**
  * MycoSense Node Firmware v1.1
- * Luminis Foundation — Rowe, New Mexico
+ * Luminis Foundation — Northern New Mexico
  *
  * Compatible: ESP32-C6, ESP32-S3
  * Reads electrode array + weather sensors, publishes via:

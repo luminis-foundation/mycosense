@@ -10,7 +10,7 @@ MycoSense is local-first research infrastructure. The attack surface is small:
 | Pi server (`mycosense.local:8765`) | LAN only — not internet-routable by design |
 | ESP32 field nodes | LAN hotspot only — no direct internet access |
 
-**The Pi server must never be exposed to the public internet.** It has no TLS and is designed to trust the local network perimeter, reinforced by the controls below.
+**The Pi server must never be exposed to the public internet.** It is designed to operate within a trusted local network perimeter, reinforced by the controls below.
 
 ## Reporting a Vulnerability
 
@@ -45,14 +45,11 @@ Please include:
 
 > **`VITE_PI_TOKEN` warning:** `VITE_*` environment variables are inlined into the browser bundle at build time. Do **not** set `VITE_PI_TOKEN` in a public or Vercel-hosted deployment — the token will be visible to anyone who inspects the built JS. This variable is only safe in local or private dashboard builds where the Pi and the browser share a trusted LAN and the bundle is not publicly accessible.
 
-## Known Limitations (Pre-Field)
+## Pre-Field Hardening Status
 
-- MQTT messages are not signed — a device on the LAN hotspot can inject fake readings
-- No replay protection on MQTT
-- Pi server has no TLS — suitable for trusted LAN only
-- No automatic data retention or log rotation on the Pi
+MycoSense is currently mock/bench/pre-field infrastructure. Live field deployment requires completion of the private field-hardening checklist, including transport security, message integrity, retention/logging controls, and network isolation review.
 
-These are tracked and planned for Phase 2 field hardening. See `docs/FIELD_DEPLOYMENT_SECURITY.md`.
+These items are tracked internally and planned for Phase 2 field hardening. See `docs/FIELD_DEPLOYMENT_SECURITY.md`.
 
 ## Out of Scope
 

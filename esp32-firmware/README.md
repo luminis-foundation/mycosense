@@ -1,6 +1,6 @@
 # MycoSense ESP32 Node Firmware
 
-**Luminis Foundation · Rowe, New Mexico**
+**Luminis Foundation · Northern New Mexico**
 Compatible: ESP32-C6, ESP32-S3
 
 ---
@@ -179,4 +179,4 @@ Simple DIY mycelium electrodes:
 
 ---
 
-*Luminis Foundation · EIN 41-4984345 · github.com/luminis-foundation/mycosense*
+*Luminis Foundation · github.com/luminis-foundation/mycosense*
