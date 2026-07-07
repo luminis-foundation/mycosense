@@ -165,4 +165,4 @@ Public repositories contain public-safe research, documentation, and demonstrati
 ## Luminis Foundation
 
 This project is part of the Luminis Foundation's biosensor and fungal electrophysiology research program.
-Preprint: [10.5281/zenodo.20143391](https://doi.org/10.5281/zenodo.20143391)
+Garcia, C. (2026). *Bridging Mycelium-Inspired Decentralized Computing and Symbiotic Plant\u2013Fungal\u2013AI Bio-Hybrid Systems in Northern New Mexico\u2019s High-Desert Ecosystems.* Zenodo. [https://doi.org/10.5281/zenodo.20143391](https://doi.org/10.5281/zenodo.20143391)
