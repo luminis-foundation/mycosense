@@ -1,0 +1,24 @@
+# Gitleaks configuration for Luminis Foundation
+# Scans for EIN, Tax ID, and other sensitive patterns
+
+title = "Luminis Foundation Custom Rules"
+
+[[rules]]
+  id = "ein-tax-id"
+  description = "Employer Identification Number (EIN / Tax ID)"
+  regex = '''[0-9]{2}-[0-9]{7}'''
+  tags = ["ein", "tax", "sensitive"]
+
+[[rules]]
+  id = "ssn"
+  description = "Social Security Number"
+  regex = '''[0-9]{3}-[0-9]{2}-[0-9]{4}'''
+  tags = ["ssn", "sensitive"]
+
+[allowlist]
+  description = "Global allowlist"
+  paths = [
+    '''node_modules''',
+    '''package-lock.json''',
+    '''.git''',
+  ]

@@ -56,3 +56,20 @@ These items are tracked internally and planned for Phase 2 field hardening. See 
 - Attacks requiring physical access to field hardware
 - Attacks against the Vercel CDN or public internet infrastructure
 - DoS against the public demo (it has no real sensors)
+
+
+## Sensitive Data Policy
+
+The following must **never** be committed to any public repository:
+
+- **EIN / Tax ID** — Employer Identification Numbers
+- **IRS letters** — CP 575, determination letters, or any IRS correspondence
+- **Banking records** — account numbers, routing numbers, statements
+- **Credentials** — API keys, tokens, passwords, SSH keys
+- **Tax filings** — Form 990, 1023-EZ submissions, or related documents
+- **Personal identifiers** — SSN, driver's license, passport numbers
+- **Exact deployment coordinates** — GPS coordinates of field hardware
+
+This repository uses [gitleaks](https://github.com/gitleaks/gitleaks) via CI to scan for accidental commits of sensitive patterns. See `.gitleaks.toml` for the configured rules.
+
+If you discover sensitive data in the repository or its history, contact the Foundation President immediately.
