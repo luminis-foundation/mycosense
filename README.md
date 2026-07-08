@@ -162,6 +162,14 @@ Do not commit real WiFi credentials, MQTT passwords, API keys, private keys, or 
 
 Public repositories contain public-safe research, documentation, and demonstration code. Private legal records, financial records, credential procedures, exact deployment locations, raw sensitive field records, board signatures, internal risk registers, and operational security runbooks are retained privately by authorized Foundation officers.
 
+## License
+
+MycoSense is source-available for noncommercial research, education, nonprofit, personal, and public-benefit use. Commercial use requires a separate written license from Luminis Foundation Research.
+
+See [`LICENSE.md`](LICENSE.md) for the full license terms.
+See [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) for commercial licensing.
+See [`ATTRIBUTION.md`](ATTRIBUTION.md) for attribution requirements.
+
 ## Luminis Foundation
 
 This project is part of the Luminis Foundation's biosensor and fungal electrophysiology research program.
