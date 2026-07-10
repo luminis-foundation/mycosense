@@ -1,3 +1,12 @@
+> **DRAFT — COUNSEL AND BOARD REVIEW ONLY**
+> **NOT ADOPTED — NOT OPERATIVE**
+> **NO LICENSE OR RIGHTS ARE GRANTED BY THIS DRAFT**
+>
+> This document is a proposed attribution policy only. It becomes effective
+> only after formal approval by the Luminis Foundation Board of Directors and
+> publication by the Foundation as the effective attribution policy for
+> MycoSense.
+
 # Attribution Requirements — MycoSense
 
 ## When Attribution Is Required

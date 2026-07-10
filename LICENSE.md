@@ -1,3 +1,11 @@
+> **DRAFT — COUNSEL AND BOARD REVIEW ONLY**
+> **NOT ADOPTED — NOT OPERATIVE**
+> **NO LICENSE OR RIGHTS ARE GRANTED BY THIS DRAFT**
+>
+> This document is a proposed license only. It becomes effective only after
+> formal approval by the Luminis Foundation Board of Directors and publication
+> by the Foundation as the effective license for MycoSense.
+
 # MycoSense — Source-Available Noncommercial License
 
 Copyright © 2026 Luminis Foundation. All rights reserved.
@@ -21,9 +29,9 @@ distribute the Software **solely for Noncommercial Use**, including:
 - Academic and scientific research
 - Educational instruction and coursework
 - Personal, hobbyist, or learning projects
-- Nonprofit organizational use
+- Noncommercial use by nonprofit organizations
 - Public-benefit and community projects
-- Government research and public-sector use
+- Noncommercial governmental research and public-sector use
 
 You must retain all copyright notices, this license, and the `NOTICE` and
 `ATTRIBUTION.md` files in any copies or derivative works.
@@ -59,11 +67,11 @@ this repository.
 This license does not grant any rights to use the Licensor's trademarks, service
 marks, trade names, or logos. See `TRADEMARK.md`.
 
-## 6. No Patent License for Commercial Use
+## 6. No Patent License in Draft
 
-No patent rights are granted for Commercial Use. Noncommercial Use receives a
-limited, non-exclusive patent license only to the extent necessary to exercise
-the rights granted in Section 2.
+This draft does not grant any patent license. All patent rights are reserved
+pending review by patent counsel or a registered patent agent and formal approval
+by the Luminis Foundation Board of Directors.
 
 ## 7. No Warranty
 

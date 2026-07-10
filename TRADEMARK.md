@@ -1,3 +1,12 @@
+> **DRAFT — COUNSEL AND BOARD REVIEW ONLY**
+> **NOT ADOPTED — NOT OPERATIVE**
+> **NO LICENSE OR RIGHTS ARE GRANTED BY THIS DRAFT**
+>
+> This document is a proposed trademark notice only. It becomes effective
+> only after formal approval by the Luminis Foundation Board of Directors and
+> publication by the Foundation as the effective trademark notice for
+> MycoSense.
+
 # Trademark Notice — MycoSense & Luminis Foundation
 
 ## Protected Marks
