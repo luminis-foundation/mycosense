@@ -1,12 +1,12 @@
 # MycoSense — Source-Available Noncommercial License
 
-Copyright © 2026 Luminis Foundation Research. All rights reserved.
+Copyright © 2026 Luminis Foundation. All rights reserved.
 
 ## 1. Definitions
 
 - **"Software"** means the MycoSense source code, firmware, documentation, data
   schemas, and all associated files in this repository.
-- **"Licensor"** means Luminis Foundation Research.
+- **"Licensor"** means Luminis Foundation.
 - **"Noncommercial Use"** means use that is not primarily intended for or
   directed toward commercial advantage or monetary compensation.
 - **"Commercial Use"** means any use that does not qualify as Noncommercial Use,
@@ -34,7 +34,7 @@ All public-facing uses — including deployments, dashboards, papers, demos, gra
 materials, presentations, and hosted services — must include visible attribution
 as described in `ATTRIBUTION.md`.
 
-## 4. Commercial Use Requires a Separate License
+## 4. Commercial Use Reserved
 
 **You may not use the Software for Commercial Use without a separate written
 license from the Licensor.** Commercial Use includes, without limitation:
@@ -48,7 +48,11 @@ license from the Licensor.** Commercial Use includes, without limitation:
 - Commercial dataset creation, curation, or licensing
 - Derivative commercial products of any kind
 
-See `COMMERCIAL_LICENSE.md` for how to obtain a commercial license.
+Commercial use is reserved and requires a separate written agreement with Luminis
+Foundation. Commercial licensing terms are subject to Foundation board
+authorization, the Foundation's Conflict of Interest Policy where applicable, and
+counsel review. No commercial license terms are offered or made operational by
+this repository.
 
 ## 5. No Trademark License
 
@@ -83,5 +87,4 @@ This license is governed by the laws of the State of New Mexico, United States.
 
 ---
 
-For commercial licensing inquiries, contact Luminis Foundation Research.
-See `COMMERCIAL_LICENSE.md` for details.
+For commercial licensing inquiries, contact Luminis Foundation.

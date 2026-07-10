@@ -164,10 +164,11 @@ Public repositories contain public-safe research, documentation, and demonstrati
 
 ## License
 
-MycoSense is source-available for noncommercial research, education, nonprofit, personal, and public-benefit use. Commercial use requires a separate written license from Luminis Foundation Research.
+MycoSense is source-available for noncommercial research, education, nonprofit, personal, and public-benefit use.
+
+Commercial rights are reserved and require a separate written agreement with Luminis Foundation. Commercial licensing is not operationalized by this repository and remains subject to Foundation board authorization and counsel review.
 
 See [`LICENSE.md`](LICENSE.md) for the full license terms.
-See [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) for commercial licensing.
 See [`ATTRIBUTION.md`](ATTRIBUTION.md) for attribution requirements.
 
 ## Luminis Foundation

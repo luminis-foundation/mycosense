@@ -3,12 +3,11 @@
 ## Protected Marks
 
 The following names, logos, and related marks are the property of Luminis
-Foundation Research:
+Foundation:
 
 - **MycoSense**
 - **Luminis Foundation**
-- **Luminis Foundation Research**
-- Associated logos, wordmarks, and visual identities
+- Associated MycoSense and Foundation logos, wordmarks, and visual identities
 
 ## What You May Do
 
@@ -16,18 +15,18 @@ You may accurately state that your work is **based on** or **derived from**
 MycoSense. For example:
 
 > "This project is based on MycoSense, originally developed by Luminis
-> Foundation Research."
+> Foundation."
 
 > "Built using components from the MycoSense platform."
 
 ## What You May Not Do
 
-Without separate written authorization from Luminis Foundation Research, you may
+Without separate written authorization from Luminis Foundation, you may
 **not**:
 
 - Imply that your product, service, or organization is **official**, **certified**,
   **endorsed by**, **partnered with**, or **sponsored by** Luminis Foundation
-  Research or MycoSense
+  or MycoSense
 - Use "MycoSense" or "Luminis Foundation" as part of your product name, domain
   name, or branding in a way that suggests official affiliation
 - Use the Foundation's logos or visual identity without written permission
@@ -44,4 +43,4 @@ product or service.
 ## Questions
 
 For trademark usage questions or authorization requests, contact Luminis
-Foundation Research.
+Foundation.

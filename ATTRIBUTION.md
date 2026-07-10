@@ -18,7 +18,7 @@ including but not limited to:
 
 Include the following attribution in a visible, reasonable location:
 
-> **Based on MycoSense, originally developed by Luminis Foundation Research.**
+> **Based on MycoSense, originally developed by Luminis Foundation.**
 
 For academic citations, use:
 
@@ -38,5 +38,5 @@ For academic citations, use:
 ## What Attribution Does Not Grant
 
 Attribution does not imply endorsement, certification, partnership, or official
-status with Luminis Foundation Research. See `TRADEMARK.md` for trademark
+status with Luminis Foundation. See `TRADEMARK.md` for trademark
 restrictions.
