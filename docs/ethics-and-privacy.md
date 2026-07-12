@@ -49,7 +49,7 @@ Signal labels in MycoSense (**Healthy**, **Moderate**, **Stressed**) describe **
 
 ## 4. Data Retention and Deletion
 
-- The browser data logger caps its in-memory buffer at 50,000 readings. Data not exported before the session is closed is lost.
+- The browser data logger caps its in-memory buffer at 50,000 readings. Data not exported before the session is closed and lost.
 - Calibration baselines are persisted to `localStorage` and are device-specific. They can be cleared from the Calibration panel at any time.
 - Pi-server stored sessions should be reviewed and deleted after archival to a secure repository. Do not leave raw session files on field hardware indefinitely.
 - If a dataset is found to contain PII or private coordinates after archival, contact the Luminis Foundation data steward to arrange correction or removal.
